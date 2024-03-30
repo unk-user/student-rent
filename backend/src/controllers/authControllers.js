@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { generateToken, hashPassword } = require('../helpers/authHelpers');
 const User = require('../models/User.model');
 const Client = require('../models/Client.model');
@@ -16,18 +17,27 @@ const loginUser = async (req, res) => {
     if (!match) {
       res.status(401).json({ message: 'wrong password' });
     }
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user._id, user.role, '15m');
+    const tokenExpiration = Date.now() + 15 * 60 * 1000;
+    const refreshToken = generateToken(user._id, user.role, '24h');
 
-    res.setHeader('Authorization', `Bearer ${token}`);
-    res.status(200).json({ message: 'Login successfull', token });
+    res.setHeader('Authorization', `Bearer ${token} ${refreshToken}`);
+    res
+      .status(200)
+      .json({
+        message: 'Login successfull',
+        token,
+        refreshToken,
+        tokenExpiration,
+      });
   } catch (error) {
     console.error('login error:', error);
   }
 };
 
 const registerUser = async (req, res) => {
-  console.log(req.body)
-  const { username, email, password, role } = req.body;
+  console.log(req.body);
+  const { username, email, password, role, school, age, city } = req.body;
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -51,9 +61,9 @@ const registerUser = async (req, res) => {
 
       await newLandlord.save();
     } else if (role === 'client') {
-      const { school, age } = req.body;
       const newClient = new Client({
         userId: newUser._id,
+        city,
         school,
         age,
       });
@@ -70,7 +80,23 @@ const registerUser = async (req, res) => {
   }
 };
 
+const refreshToken = async (req, res) => {
+  const refreshToken = req.headers.authorization?.split(' ')[2];
+  try {
+    if (!refreshToken) {
+      res.status(401).json({ message: 'Unauthorized' });
+    }
+    const decode = jwt.verify(refreshToken, process.env.SECRET);
+    const token = generateToken(decode.userId, decode.role, '15m');
+    res.json({ token });
+  } catch (error) {
+    console.error('invalid token');
+    res.status(403).json({ message: 'Invalid token' });
+  }
+};
+
 module.exports = {
   loginUser,
   registerUser,
+  refreshToken,
 };
