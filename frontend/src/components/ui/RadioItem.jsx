@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { IoIosRadioButtonOff, IoIosRadioButtonOn } from 'react-icons/io';
 
 function RadioItem({ className, name, label, value, onChange, checked }) {
   const defaultClassName = 'flex items-center relative';
@@ -9,18 +8,16 @@ function RadioItem({ className, name, label, value, onChange, checked }) {
 
   return (
     <div className={combinedClassName}>
-      <IoIosRadioButtonOff/>
-      <IoIosRadioButtonOn/>
+    <label htmlFor={`${value}-${name}`} className="text-sm cursor-pointer">
       <input
         type="radio"
-        className="relative top-[1px] mr-1 "
+        className="relative top-[1px] mr-1 radio-input"
         name={name}
-        id={name}
+        id={`${value}-${name}`}
         value={value}
         onChange={onChange}
         checked={checked}
       />
-      <label htmlFor={name} className="text-sm">
         {label}
       </label>
     </div>
