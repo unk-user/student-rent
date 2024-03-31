@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const generateToken = (userId, role, expiration) => {
   if (role) {
     const token = jwt.sign({ userId, role }, process.env.SECRET, {
-      expiresIn: expiration,
+      expiresIn: expiration || '15m',
     });
     return token;
   } else {
