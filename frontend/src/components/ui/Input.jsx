@@ -44,7 +44,7 @@ Input.propTypes = {
   placeholder: PropTypes.string,
   label: PropTypes.string,
   handleChange: PropTypes.func,
-  minLength: PropTypes.string,
-  maxLength: PropTypes.string,
+  minLength: PropTypes.any,
+  maxLength: PropTypes.any,
   required: PropTypes.bool,
 };

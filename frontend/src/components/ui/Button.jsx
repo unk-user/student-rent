@@ -5,9 +5,9 @@ export default function Button({
   type = 'button',
   handleClick,
   children,
-  name,
+  name = '',
 }) {
-  const defaultClassName = 'border rounded-md px-6 p-2';
+  const defaultClassName = 'border rounded-md px-4 p-2 font-medium';
 
   const combinedClassName = className
     ? `${defaultClassName} ${className}`
@@ -29,6 +29,6 @@ Button.propTypes = {
   className: PropTypes.string,
   type: PropTypes.string,
   handleClick: PropTypes.func,
-  children: PropTypes.string,
+  children: PropTypes.any,
   name: PropTypes.string,
 };
