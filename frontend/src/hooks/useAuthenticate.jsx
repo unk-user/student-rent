@@ -1,7 +1,7 @@
 import useToken from './useToken';
 
 const useAuthenticate = () => {
-  const { saveTokens } = useToken;
+  const { saveTokens } = useToken();
 
   const serverRegister = async (userData) => {
     try {
