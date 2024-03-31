@@ -71,9 +71,11 @@ const registerUser = async (req, res) => {
       await newClient.save();
     }
     const token = generateToken(newUser._id, newUser.role);
+    const tokenExpiration = Date.now() + 15 * 60 * 1000;
+    const refreshToken = generateToken(newUser._id, newUser.role, '24h');
 
     res.setHeader('Authorization', `Bearer ${token}`);
-    res.status(201).json({ message: 'User registered successfully', token });
+    res.status(201).json({ message: 'User registered successfully', token, refreshToken, tokenExpiration });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Server error' });
