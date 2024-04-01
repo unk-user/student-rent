@@ -10,12 +10,12 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.json({ message: 'User not found' });
+      return res.status(401).json({ message: 'User not found' });
     }
 
     const match = await bcrypt.compare(password, user.hash);
     if (!match) {
-      res.status(401).json({ message: 'wrong password' });
+      return res.status(401).json({ message: 'wrong password' });
     }
     const token = generateToken(user._id, user.role, '15m');
     const tokenExpiration = Date.now() + 15 * 60 * 1000;
@@ -41,7 +41,7 @@ const registerUser = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists' });
+      return res.status(400).json({ message: 'Email already exists, login instead' });
     }
 
     const hash = await hashPassword(password);
@@ -82,7 +82,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-const refreshToken = async (req, res) => {
+const regenToken = async (req, res) => {
   const refreshToken = req.headers.authorization?.split(' ')[2];
   try {
     if (!refreshToken) {
@@ -100,5 +100,5 @@ const refreshToken = async (req, res) => {
 module.exports = {
   loginUser,
   registerUser,
-  refreshToken,
+  regenToken,
 };
