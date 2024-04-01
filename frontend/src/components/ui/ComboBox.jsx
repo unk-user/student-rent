@@ -41,7 +41,7 @@ function ComboBox({ formData, setFormData, cities }) {
   return (
     <div className="relative w-fit">
       <Button
-        className="text-ellipsis py-1 h-8 w-44 flex justify-between items-center"
+        className="text-ellipsis py-1 h-9 w-44 flex justify-between items-center"
         handleClick={handleButtonClick}
       >
         <p className=" leading-relaxed">{selectedCity || 'Select city'}</p>
