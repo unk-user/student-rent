@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import SignUp from './routes/SignUp.jsx';
 import './index.css';
 import SignIn from './routes/SignIn.jsx';
+import PrivateRoute from './routes/PrivateRoute.jsx';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: '/SignIn',
     element: <SignIn />
+  },
+  {
+    path: '/private',
+    element: <PrivateRoute />
   }
 ]);
 
