@@ -4,8 +4,6 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const privateRoutes = require('./routes/privateRoutes');
-const citiesDataRoutes = require('./routes/citiesDataRoute');
-
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -18,7 +16,6 @@ app.use(morgan('dev'));
 
 app.use('/api', authRoutes);
 app.use('/api/home', privateRoutes);
-app.use('/api/cities', citiesDataRoutes);
 
 app.use((req, res, next) => {
   const error = new Error('not found');
