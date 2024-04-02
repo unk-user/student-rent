@@ -1,98 +1,104 @@
-import { useEffect, useState } from 'react';
-import GeneralForm from './GeneralForm';
-import RoleForm from './RoleForm';
+import { useState } from 'react';
+import { Form, Link } from 'react-router-dom';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import ErrorPopup from '../ui/ErrorPopup';
+import RadioItem from '../ui/RadioItem';
+import ComboBox from '../ui/ComboBox';
 
 function SignupForm() {
-  const [activeForm, setActiveForm] = useState(0);
-  const [selectedRadio, setSelectedRadio] = useState('client');
-  const [citiesData, setCitiesData] = useState([]);
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    role: 'client',
-    school: '',
-    age: '',
-    city: '',
-  });
+  const [selectedRole, setSelectedRole] = useState('client');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.REACT_APP_API_URI}cities`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setCitiesData(data.cities);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData()
-  }, []);
-
-  const handleRadioChange = (e) => {
-    setSelectedRadio(e.target.value);
-    setFormData({
-      ...formData,
-      school: '',
-      city: '',
-      role: e.target.value,
-    });
-  };
-
-  const validateForm1 = () => {
-    const isValidUsername = /^[a-zA-Z]+ [a-zA-Z]+$/g.test(
-      formData.username.trim()
-    ); // Regex to validate full name
-    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/g.test(
-      formData.email.trim()
-    );
-    const isValidPassword = formData.password.length >= 8;
-    return isValidUsername && isValidEmail && isValidPassword;
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleNext = (e) => {
-    e.preventDefault();
-    switch (e.target.name) {
-      case 'next':
-        if (!validateForm1()) return;
-        setActiveForm(1);
-    }
+  const handleRoleSelection = (e) => {
+    setSelectedRole(e.target.value);
   };
 
   return (
-    <div action="" className="relative border-2 rounded-lg pt-4 pb-2 px-6 w-[400px]">
-      {activeForm === 0 ? (
-        <GeneralForm
-          formData={formData}
-          handleChange={handleChange}
-          handleNext={handleNext}
+    <Form
+      className="relative border-2 rounded-lg pt-4 pb-2 px-6 w-[400px] flex flex-col items-center"
+      method="post"
+    >
+      <ErrorPopup />
+      <div>
+        <h3>Account</h3>
+        <p className="mb-5">
+          Sign up with your username, email, and password to get started.
+        </p>
+      </div>
+      <div className="grid gap-2 w-full">
+        <Input
+          name={'username'}
+          type="text"
+          label={'Full name'}
+          placeholder={'your name'}
+          required
         />
-      ) : (
-        <RoleForm
-        setActiveForm={setActiveForm}
-          setFormData={setFormData}
-          formData={formData}
-          citiesData={citiesData}
-          handleChange={handleChange}
-          handleRadioChange={handleRadioChange}
-          selectedRadio={selectedRadio}
+        <Input
+          name={'email'}
+          type="email"
+          label={'Email address'}
+          placeholder={'example@mail.com'}
+          required
         />
-      )}
-      <p className='text-sm text-center m-auto w-max'>Already have an account? login</p>
-    </div>
+        <Input
+          name={'password'}
+          type={'password'}
+          label={'Password'}
+          minLength="8"
+          maxLength="16"
+          placeholder={'your password'}
+          required
+        />
+        <div>
+          <p className="font-medium">Select your role</p>
+          <div className="flex flex-col mb-2">
+            <RadioItem
+              label={'Client'}
+              name={'role'}
+              value={'client'}
+              selectedRole={selectedRole}
+              handleRoleSelection={handleRoleSelection}
+            />
+            <RadioItem
+              label={'Landlord'}
+              name={'role'}
+              value={'landlord'}
+              selectedRole={selectedRole}
+              handleRoleSelection={handleRoleSelection}
+            />
+          </div>
+          <div
+            className={`flex flex-col gap-2 relative ${
+              selectedRole === 'landlord' && 'opacity-40'
+            }`}
+          >
+            {selectedRole === 'landlord' && (
+              <div className="w-full h-full z-30 absolute"></div>
+            )}
+            <Input
+              name={'school'}
+              placeholder={'ENSA'}
+              label={'Select your school'}
+              type="text"
+            />
+            <div>
+              <p className="font-medium mb-1">Select your city</p>
+              <ComboBox />
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 mb-5">
+          <div className="gap-1 flex flex-col">
+            <Button type="submit" className={'w-full'}>
+              Sign up
+            </Button>
+          </div>
+          <p className="text-center">
+            already have an account? <Link to="/signin">login</Link>
+          </p>
+        </div>
+      </div>
+    </Form>
   );
 }
 
