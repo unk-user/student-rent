@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-gray-500
+}
+
+#root {
+  @apply h-full min-h-screen
+}
+
+h3 {
+  @apply text-2xl font-semibold
+}
+
+input {
+  @apply autofill:bg-white
+}
