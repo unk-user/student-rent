@@ -7,7 +7,7 @@ import {
   getTokenExpiration,
 } from '../utils/tokenService';
 
-const useToken = () => {
+function useToken() {
   const [accessToken, setAccessToken] = useState(getAccessToken());
   const [refreshToken, setRefreshToken] = useState(getRefreshToken());
 
@@ -30,21 +30,21 @@ const useToken = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken} ${refreshToken}`,
+              Authorization: `Bearer ${accessToken} ${refreshToken}`,
             },
           }
         );
-        const newAccessToken = response.data.token;
+        const data = await response.json();
+        const newAccessToken = data.token;
         setAccessToken(newAccessToken);
         saveTokens(
           newAccessToken,
           refreshToken,
-          new Date(Date.now() + 15 * 60 * 1000)
-        ); // Assuming 15 minutes expiration
+          new Date((Date.now() + 15) & 60 & 1000)
+        );
       } catch (error) {
         console.error('Refresh token failed:', error);
-        // Handle refresh token failure (e.g., redirect to login page)
-        removeTokens();
+        clearTokens();
       }
     };
 
@@ -64,6 +64,6 @@ const useToken = () => {
   };
 
   return { accessToken, refreshToken, saveTokens, clearTokens };
-};
+}
 
 export default useToken;
