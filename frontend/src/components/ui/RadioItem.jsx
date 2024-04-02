@@ -1,26 +1,24 @@
 import PropTypes from 'prop-types';
 
-function RadioItem({ className, name, label, value, onChange, checked }) {
-  const defaultClassName = 'flex items-center relative';
+function RadioItem({ className, label, value, name , selectedRole, handleRoleSelection }) {
+  const defaultClassName = 'flex items-center relative cursor-pointer';
   const combinedClassName = className
     ? `${defaultClassName} ${className}`
     : defaultClassName;
 
   return (
-    <div className={combinedClassName}>
-    <label htmlFor={`${value}-${name}`} className="text-sm cursor-pointer">
+    <label htmlFor={value} className={combinedClassName}>
       <input
         type="radio"
-        className="relative top-[1px] mr-1 radio-input"
+        className="relative top-[1px] mr-1"
         name={name}
-        id={`${value}-${name}`}
+        id={value}
         value={value}
-        onChange={onChange}
-        checked={checked}
+        checked={selectedRole === value}
+        onChange={handleRoleSelection}
       />
-        {label}
-      </label>
-    </div>
+      {label}
+    </label>
   );
 }
 
@@ -31,6 +29,6 @@ RadioItem.propTypes = {
   name: PropTypes.string,
   label: PropTypes.string,
   value: PropTypes.string,
-  onChange: PropTypes.func,
-  checked: PropTypes.bool,
+  selectedRole: PropTypes.string,
+  handleRoleSelection: PropTypes.func
 };
