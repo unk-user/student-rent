@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import Button from './Button';
 import { RiExpandUpDownLine } from 'react-icons/ri';
 import { CiSearch } from 'react-icons/ci';
 import { FaCheck } from 'react-icons/fa6';
 import { motion, AnimatePresence } from 'framer-motion';
 
-function ComboBox({ formData, setFormData, cities }) {
+function ComboBox() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const selectedCity = formData.city;
+  const [selectedCity, setSelectedCity] = useState('');
   const inputRef = useRef(null);
+  const inputRadio = useRef(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -18,17 +18,29 @@ function ComboBox({ formData, setFormData, cities }) {
     }
   }, [isOpen]);
 
-  const filteredCities = cities.filter((item) =>
-    item.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const cityData = [
+    'Casablanca',
+    'Rabat',
+    'Fes',
+    'Tangier',
+    'Marrakesh',
+    'Sale',
+    'Agadir',
+    'Meknes',
+    'Oujda',
+    'Kenitra',
+    'Tetouan',
+    'Al Hoceima',
+  ];
 
   const handleSelection = (e) => {
-    setFormData({
-      ...formData,
-      city: e.target.textContent,
-    });
-    setIsOpen(!isOpen);
+    inputRef.current.value = e.target.textContent
+    setSelectedCity(e.target.textContent);
   };
+
+  const filteredCities = cityData.filter((city) =>
+    city.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleButtonClick = () => {
     setIsOpen(!isOpen);
@@ -44,7 +56,10 @@ function ComboBox({ formData, setFormData, cities }) {
         className="text-ellipsis py-1 h-9 w-44 flex justify-between items-center"
         handleClick={handleButtonClick}
       >
-        <p className=" leading-relaxed">{selectedCity || 'Select city'}</p>
+        <div htmlFor="city" className='flex'>
+          <input type="radio" className=' hidden' checked={true} id='city' name='city' value={selectedCity} readOnly ref={inputRadio}/>
+          <p className=" leading-relaxed">{selectedCity || 'Select city'}</p>
+        </div>
         <RiExpandUpDownLine />
       </Button>
       <AnimatePresence mode="wait">
@@ -62,20 +77,21 @@ function ComboBox({ formData, setFormData, cities }) {
                 ref={inputRef}
                 type="text"
                 maxLength={30}
-                placeholder='Search for more'
+                placeholder="Search for more"
                 onChange={handleSearchChange}
                 value={searchQuery}
                 className="w-full focus:outline-none px-1 py-1"
               />
             </div>
-            {filteredCities.map((city, index) => {
+            {filteredCities.sort().map((city, index) => {
               return (
                 index < 5 && (
                   <div
                     className={
                       'relative hover:bg-gray-200 rounded-md p-1 pl-3 h-8 mx-1'
                     }
-                    key={city}
+                    key={index}
+                    value={city}
                     onClick={handleSelection}
                   >
                     {selectedCity === city && (
@@ -94,9 +110,3 @@ function ComboBox({ formData, setFormData, cities }) {
 }
 
 export default ComboBox;
-
-ComboBox.propTypes = {
-  formData: PropTypes.object,
-  setFormData: PropTypes.func,
-  cities: PropTypes.array,
-};
