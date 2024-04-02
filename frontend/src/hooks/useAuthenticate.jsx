@@ -1,9 +1,9 @@
-import useToken from './useToken';
+import useToken from "./useToken";
 
-const useAuthenticate = () => {
+export default function useAuthenticate() {
   const { saveTokens } = useToken();
-
-  const serverRegister = async (userData) => {
+  
+  const registerUser = async (userData) => {
     try {
       const response = await fetch(
         `${import.meta.env.REACT_APP_API_URI}register`,
@@ -14,20 +14,23 @@ const useAuthenticate = () => {
         }
       );
       if (!response.ok) {
-        throw new Error('registration failed');
+        const errorData = await response.json();
+        return { error: errorData.message || 'Registrayion failed'};
       }
       const data = await response.json();
       const { token, refreshToken, tokenExpiration } = data;
       if (!token || !refreshToken) {
-        throw new Error('failed to get tokens');
+        return { error: 'Failed to get Tokens' };
       }
       saveTokens(token, refreshToken, tokenExpiration);
+      return { success: true };
     } catch (err) {
       console.error('Registration error:', err);
+      return { error: 'Registration failed' }
     }
   };
 
-  const serverLogin = async (userData) => {
+  const loginUser = async (userData) => {
     try {
       const response = await fetch(
         `${import.meta.env.REACT_APP_API_URI}login`,
@@ -38,20 +41,21 @@ const useAuthenticate = () => {
         }
       );
       if (!response.ok) {
-        throw new Error('registration failed');
+        const errorData = await response.json();
+        return { error: errorData.message || 'Login failed' };
       }
       const data = await response.json();
       const { token, refreshToken, tokenExpiration } = data;
       if (!token || !refreshToken) {
-        throw new Error('failed to get tokens');
+        return { error: 'Failed to get tokens' };
       }
       saveTokens(token, refreshToken, tokenExpiration);
+      return { success: true };
     } catch (err) {
       console.error('Login error:', err);
+      return { error: 'Login failed' }
     }
   };
 
-  return { serverLogin, serverRegister };
-};
-
-export default useAuthenticate;
+  return { registerUser, loginUser };
+}
