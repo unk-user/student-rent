@@ -10,10 +10,11 @@ import {
 function useToken() {
   const [accessToken, setAccessToken] = useState(getAccessToken());
   const [refreshToken, setRefreshToken] = useState(getRefreshToken());
+  const [refreshRetries, setRefreshRetries] = useState(0);
 
   useEffect(() => {
     const checkTokenExpiration = () => {
-      const expirationTime = getTokenExpiration();
+      const expirationTime = Number(getTokenExpiration());
       if (
         expirationTime &&
         new Date(expirationTime) - Date.now() <= 1 * 60 * 1000
@@ -44,17 +45,20 @@ function useToken() {
         );
       } catch (error) {
         console.error('Refresh token failed:', error);
-        clearTokens();
+        setRefreshRetries((refreshRetries) => refreshRetries++)
+        if(refreshRetries > 4) {
+          clearTokens();
+        }
       }
     };
 
     checkTokenExpiration();
-  }, [accessToken, refreshToken]);
+  }, [accessToken, refreshToken, refreshRetries]);
 
-  const saveTokens = (newAccessToken, newRefreshToken) => {
+  const saveTokens = (newAccessToken, newRefreshToken, expirationTime, role) => {
     setAccessToken(newAccessToken);
     setRefreshToken(newRefreshToken);
-    setTokens(newAccessToken, newRefreshToken);
+    setTokens(newAccessToken, newRefreshToken, expirationTime, role);
   };
 
   const clearTokens = () => {
