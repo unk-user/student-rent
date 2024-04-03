@@ -18,11 +18,11 @@ export default function useAuthenticate() {
         return { error: errorData.message || 'Registrayion failed'};
       }
       const data = await response.json();
-      const { token, refreshToken, tokenExpiration } = data;
+      const { token, refreshToken, tokenExpiration, userRole } = data;
       if (!token || !refreshToken) {
         return { error: 'Failed to get Tokens' };
       }
-      saveTokens(token, refreshToken, tokenExpiration);
+      saveTokens(token, refreshToken, tokenExpiration, userRole);
       return { success: true };
     } catch (err) {
       console.error('Registration error:', err);
@@ -45,11 +45,11 @@ export default function useAuthenticate() {
         return { error: errorData.message || 'Login failed' };
       }
       const data = await response.json();
-      const { token, refreshToken, tokenExpiration } = data;
+      const { token, refreshToken, tokenExpiration, userRole } = data;
       if (!token || !refreshToken) {
         return { error: 'Failed to get tokens' };
       }
-      saveTokens(token, refreshToken, tokenExpiration);
+      saveTokens(token, refreshToken, tokenExpiration, userRole);
       return { success: true };
     } catch (err) {
       console.error('Login error:', err);
