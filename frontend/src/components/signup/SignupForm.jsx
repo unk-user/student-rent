@@ -50,7 +50,7 @@ function SignupForm() {
           required
         />
         <div>
-          <p className="font-medium">Select your role</p>
+          <p className="font-medium">Sign up as</p>
           <div className="flex flex-col mb-2">
             <RadioItem
               label={'Client'}
