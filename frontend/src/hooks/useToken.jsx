@@ -5,6 +5,7 @@ import {
   setTokens,
   removeTokens,
   getTokenExpiration,
+  getUserRole
 } from '../utils/tokenService';
 
 function useToken() {
@@ -13,17 +14,20 @@ function useToken() {
   const [refreshRetries, setRefreshRetries] = useState(0);
 
   useEffect(() => {
+    console.log('calling hook');
     const checkTokenExpiration = () => {
-      const expirationTime = Number(getTokenExpiration());
+      const expirationTime = getTokenExpiration();
+      console.log(expirationTime)
       if (
         expirationTime &&
-        new Date(expirationTime) - Date.now() <= 1 * 60 * 1000
+        expirationTime - Date.now() <= 1 * 60 * 1000
       ) {
-        refreshToken();
+        tokenRefrech();
       }
     };
 
-    const refreshToken = async () => {
+    const tokenRefrech = async () => {
+      console.log('trying to refresh')
       try {
         const response = await fetch(
           `${import.meta.env.REACT_APP_API_URI}refresh`,
@@ -31,29 +35,35 @@ function useToken() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${accessToken} ${refreshToken}`,
+              'Authorization': `Bearer ${accessToken} ${refreshToken}`,
             },
           }
         );
         const data = await response.json();
         const newAccessToken = data.token;
+        if(!newAccessToken) {
+          console.log('invalid access token')
+        }
         setAccessToken(newAccessToken);
         saveTokens(
           newAccessToken,
           refreshToken,
-          new Date((Date.now() + 15) & 60 & 1000)
+          (Date.now() + 15 * 60 * 1000),
+          getUserRole()
         );
       } catch (error) {
         console.error('Refresh token failed:', error);
-        setRefreshRetries((refreshRetries) => refreshRetries++)
+        console.log(refreshRetries)
+        setRefreshRetries((refreshRetries) => refreshRetries + 1)
         if(refreshRetries > 4) {
+          setRefreshRetries(0);
           clearTokens();
         }
       }
     };
 
     checkTokenExpiration();
-  }, [accessToken, refreshToken, refreshRetries]);
+  });
 
   const saveTokens = (newAccessToken, newRefreshToken, expirationTime, role) => {
     setAccessToken(newAccessToken);
