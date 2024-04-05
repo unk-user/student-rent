@@ -1,15 +1,32 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const generateToken = (userId, role, expiration) => {
-  if (role) {
-    const token = jwt.sign({ userId, role }, process.env.SECRET, {
-      expiresIn: expiration || '15m',
-    });
-    return token;
-  } else {
-    return null;
+const generateAccessToken = (userId, role) => {
+  const token = jwt.sign({ userId, role }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: '30s',
+  });
+  return token;
+};
+
+const generateRefreshToken = (userId, role) => {
+  const refreshToken = jwt.sign(
+    { userId, role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: '7d' }
+  );
+  return refreshToken;
+};
+
+const rotateRefreshToken = async (user, refreshToken) => {
+  const index = user.refreshTokens.indexOf(refreshToken);
+  if (index !== -1) {
+    user.refreshTokens.splice(index, 1);
+    const newRefreshToken = generateRefreshToken(user._id, user.role);
+    user.refreshTokens.push(newRefreshToken);
+    await user.save();
+    return newRefreshToken;
   }
+  return null;
 };
 
 const hashPassword = async (password) => {
@@ -19,6 +36,8 @@ const hashPassword = async (password) => {
 };
 
 module.exports = {
-  generateToken,
+  generateAccessToken,
+  generateRefreshToken,
+  rotateRefreshToken,
   hashPassword,
 };
