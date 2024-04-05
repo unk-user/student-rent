@@ -4,8 +4,7 @@ const Schema = mongoose.Schema;
 const clientSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   city: { type: String },
-  school: { type: String },
-  year: { type: Number }
+  school: { type: String }
 });
 
 module.exports = mongoose.model('Client', clientSchema);
