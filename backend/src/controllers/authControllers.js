@@ -1,6 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { generateToken, hashPassword } = require('../helpers/authHelpers');
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  hashPassword,
+  rotateRefreshToken,
+} = require('../helpers/authHelpers');
 const User = require('../models/User.model');
 const Client = require('../models/Client.model');
 const Landlord = require('../models/Landlord.model');
@@ -12,24 +17,24 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
-
     const match = await bcrypt.compare(password, user.hash);
     if (!match) {
-      return res.status(401).json({ message: 'wrong password' });
+      return res.status(403).json({ message: 'wrong password' });
     }
-    const token = generateToken(user._id, user.role, '15m');
-    const tokenExpiration = Date.now() + 15 * 60 * 1000;
-    const refreshToken = generateToken(user._id, user.role, '24h');
 
-    res.setHeader('Authorization', `Bearer ${token} ${refreshToken}`);
-    res
-      .status(200)
-      .json({
-        message: 'Login successfull',
-        token,
-        refreshToken,
-        tokenExpiration,
-      });
+    const token = generateAccessToken(user._id, user.role);
+    const refreshToken = generateRefreshToken(user._id, user.role);
+    user.refreshTokens.push(refreshToken);
+    await user.save();
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    res.status(200).json({
+      token,
+    });
   } catch (error) {
     console.error('login error:', error);
   }
@@ -41,7 +46,9 @@ const registerUser = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists, login instead' });
+      return res
+        .status(400)
+        .json({ message: 'Email already exists, login instead' });
     }
 
     const hash = await hashPassword(password);
@@ -65,40 +72,72 @@ const registerUser = async (req, res) => {
         userId: newUser._id,
         city,
         school,
-        age,
       });
 
       await newClient.save();
     }
-    const token = generateToken(newUser._id, newUser.role);
-    const tokenExpiration = Date.now() + 15 * 60 * 1000;
-    const refreshToken = generateToken(newUser._id, newUser.role, '24h');
+    const token = generateAccessToken(newUser._id, newUser.role);
+    const refreshToken = generateRefreshToken(newUser._id, newUser.role);
 
-    res.setHeader('Authorization', `Bearer ${token}`);
-    res.status(201).json({ message: 'User registered successfully', token, refreshToken, tokenExpiration });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    res.status(201).json({
+      token,
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-const regenToken = async (req, res) => {
-  const refreshToken = req.headers.authorization?.split(' ')[2];
+const refreshAccessToken = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) res.status(401);
+
+  const user = await User.findOne({ refreshTokens: refreshToken });
+  if (!user) return res.sendStatus(403);
+
   try {
-    if (!refreshToken) {
-      res.status(401).json({ message: 'Unauthorized' });
-    }
-    const decode = jwt.verify(refreshToken, process.env.SECRET);
-    const token = generateToken(decode.userId, decode.role, '15m');
-    res.json({ token });
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
   } catch (error) {
-    console.error('invalid token');
-    res.status(403).json({ message: 'Invalid token' });
+    res.sendStatus(403);
   }
+  const newRefreshToken = await rotateRefreshToken(user, refreshToken);
+  if (!newRefreshToken) return res.sendStatus(403);
+
+  const accessToken = generateAccessToken(user._id, user.role);
+
+  res.cookie('refreshToken', newRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+  });
+
+  res.json({ accessToken });
+};
+
+const logoutUser = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.sendStatus(204);
+
+  const user = await User.findOne({ refreshTokens: refreshToken });
+  if (!user) return res.sendStatus(204);
+
+  user.refreshTokens = user.refreshTokens.filter(
+    (token) => token !== refreshToken
+  );
+  await user.save();
+
+  res.clearCookie('refreshToken');
+  res.sendStatus(204);
 };
 
 module.exports = {
   loginUser,
   registerUser,
-  regenToken,
+  refreshAccessToken,
+  logoutUser,
 };
