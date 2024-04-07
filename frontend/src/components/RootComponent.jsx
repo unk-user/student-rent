@@ -1,25 +1,10 @@
-import { Navigate, useLoaderData } from 'react-router-dom'
-import { getUserRole } from '../utils/tokenService';
+import { useLoaderData, Navigate } from 'react-router-dom';
 
 function RootComponent() {
-  const isAuthenticated = useLoaderData();
-  
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace/>
-  }
-  const userRole = getUserRole();
-  
-  return (
-    <div>
-      {
-        userRole === 'landlord' ? (
-          <div>Authenticated landlord</div>
-        ) : (
-          <Navigate to='/client'/>
-        )
-      }
-    </div>
-  )
+  const auth = useLoaderData();
+
+  if(auth.role === 'landlord') return <Navigate to='/landlord'/>
+  if(auth.role === 'client') return <Navigate to='/client'/>
 }
 
-export default RootComponent
+export default RootComponent;
