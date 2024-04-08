@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
-const privateRoutes = require('./routes/privateRoutes');
+const userRouter = require('./routes/userRouter');
+const landlordRouter = require('./routes/landlordRoutes');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -12,12 +13,19 @@ const app = express();
 connectDB();
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: ['http://localhost:8000', 'http://localhost:5173'],
+  })
+);
 app.use(morgan('dev'));
 app.use(cookieParser());
 
 app.use('/api', authRoutes);
-app.use('/api/home', privateRoutes);
+app.use('/api/me', userRouter);
+app.use('/api/landlord', landlordRouter);
 
 app.use((req, res, next) => {
   const error = new Error('not found');
