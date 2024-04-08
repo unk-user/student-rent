@@ -94,7 +94,7 @@ function SignupForm() {
             </Button>
           </div>
           <p className="text-center">
-            already have an account? <Link to="/signin">login</Link>
+            already have an account? <Link to="/login">login</Link>
           </p>
         </div>
       </div>
