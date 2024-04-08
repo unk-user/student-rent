@@ -7,7 +7,7 @@ router.use(verifyToken);
 router.get('/', (req, res) => {
   res.json({
     id: req.userId,
-    role: req.role
+    role: req.role,
   })
 })
 
