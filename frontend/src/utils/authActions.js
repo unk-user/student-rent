@@ -1,27 +1,44 @@
-import { redirect } from 'react-router-dom';
+import axios from 'axios';
 
 export const signupAction =
-  ({ registerUser }) =>
+  ({ authContext }) =>
   async ({ request }) => {
-    const formData = await request.formData();
-    const updates = Object.fromEntries(formData);
-    const response = await registerUser(updates);
-
-    if (response.error) {
-      return { error: response.error };
+    try {
+      const formData = await request.formData();
+      const userData = Object.fromEntries(formData);
+      const response = await axios.post(
+        `${import.meta.env.REACT_APP_API_URI}register`,
+        userData,
+        { withCredentials: true }
+      );
+      console.log(response.data);
+      authContext.setAuth(response.data);
+      return null;
+    } catch (error) {
+      return { error: error.response.data.message };
     }
-    return redirect('/');
   };
 
 export const loginAction =
-  ({ loginUser }) =>
+  ({ authContext }) =>
   async ({ request }) => {
-    const formData = await request.formData();
-    const updates = Object.fromEntries(formData);
-    const response = await loginUser(updates);
-
-    if (response.error) {
-      return { error: response.error };
+    try {
+      const formData = await request.formData();
+      const userData = Object.fromEntries(formData);
+      const response = await axios.post(
+        `${import.meta.env.REACT_APP_API_URI}login`,
+        userData,
+        { withCredentials: true }
+      );
+      console.log(response.data);
+      authContext.setAuth(response.data);
+      return true;
+    } catch (error) {
+      return { error: error.response.data.message };
     }
-    return redirect('/');
   };
+
+export const logout = async () => {
+  const response = axios.post(`${import.meta.env.REACT_APP_API_URI}logout`);
+  return response;
+};
