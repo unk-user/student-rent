@@ -7,7 +7,7 @@ body {
 }
 
 #root {
-  @apply h-full min-h-screen
+  @apply h-screen min-h-screen
 }
 
 h3 {
