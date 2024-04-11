@@ -4,7 +4,7 @@ const { getListings, createListing } = require('../controllers/landlordControlle
 const router = express.Router();
 
 router.use(verifyToken);
-router.get('/', getListings);
-router.post('/', createListing);
+router.get('/listings', getListings);
+router.post('/listings', createListing);
 
 module.exports = router;
