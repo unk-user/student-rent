@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Landlord = require('../models/Landlord.model');
+const Landlord = require('./Landlord.model');
 const Schema = mongoose.Schema;
 
 const rentalListingSchema = new Schema({
@@ -8,6 +8,7 @@ const rentalListingSchema = new Schema({
   location: { type: String, required: true },
   price: { type: Number, required: true },
   rooms: { type: Number, required: true },
+  students: [{type: Schema.Types.ObjectId, ref: 'Client'}],
   images: [{type: String}],
   landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true }
 });
