@@ -3,8 +3,9 @@ const Schema = mongoose.Schema;
 
 const clientSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  city: { type: String },
-  school: { type: String }
+  city: String,
+  school: String,
+  bookmarks: [{type: Schema.Types.ObjectId, ref: 'RentalListing'}]
 });
 
 module.exports = mongoose.model('Client', clientSchema);
