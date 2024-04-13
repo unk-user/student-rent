@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const userRouter = require('./routes/userRouter');
 const landlordRouter = require('./routes/landlordRoutes');
+const studentRouter = require('./routes/studentRoutes');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use('/api', authRoutes);
 app.use('/api/me', userRouter);
 app.use('/api/landlord', landlordRouter);
+app.use('/api/student', studentRouter);
 
 app.use((req, res, next) => {
   const error = new Error('not found');
