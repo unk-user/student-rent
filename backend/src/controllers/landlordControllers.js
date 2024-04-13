@@ -1,8 +1,6 @@
 const Landlord = require('../models/Landlord.model');
-const User = require('../models/User.model');
 const RentalListing = require('../models/RentalListing.model');
 const Client = require('../models/Client.model');
-const Booking = require('../models/Booking.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
