@@ -1,19 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply bg-gray-500
+  @apply bg-gray-500 font-[Rubik];
 }
 
 #root {
-  @apply h-screen min-h-screen
+  @apply h-screen min-h-screen;
+}
+
+h1 {
+  @apply text-5xl font-medium;
+}
+
+h2 {
+  @apply text-[2.5rem];
 }
 
 h3 {
-  @apply text-2xl font-semibold
+  @apply text-[2rem];
+}
+
+h4 {
+  @apply text-[1.72rem];
+}
+
+h5 {
+  @apply text-[1.4rem];
+}
+
+h6 {
+  @apply text-[1.2rem];
 }
 
 input {
-  @apply autofill:bg-white
+  @apply autofill:bg-white;
+}
+
+.radio-input {
+  @apply appearance-none bg-gray-300 w-[16px] h-[16px]
+  rounded mb-[2px] checked:bg-[#354FB8];
+}
+
+.radio-container .radio-input:checked ~ .radio-label {
+  @apply text-[#354FB8]
+}
+
+.range-circle {
+  @apply select-none;
 }
