@@ -1,9 +1,9 @@
 const RentalListing = require('../models/RentalListing.model');
 const Client = require('../models/Client.model');
 const Booking = require('../models/Booking.model');
-const { Types } = require('mongoose');
 
 const getListings = async (req, res) => {
+  const userId = req.userId;
   const { offset = 0, limit = 12, filters = '[]', sort = '' } = req.query;
   const parsedFilters = JSON.parse(filters);
   const filter = parsedFilters.reduce((acc, curr) => {
@@ -28,11 +28,22 @@ const getListings = async (req, res) => {
   }
   console.log(filter, sortOptions);
   try {
-    const listings = await RentalListing.find(filter)
+    const client = await Client.findOne({ userId });
+    const listings = await RentalListing.find({ ...filter, city: client.city })
       .sort(sortOptions)
       .skip(offset)
       .limit(limit);
-    res.json(listings);
+
+      const recomendedBookings = await Booking.find({
+      rentalListingId: { $in: listings.map((l) => l._id) },
+      school: client.school,
+    }).populate('rentalListingId');
+    const recomendedListings = recomendedBookings.map(b => b.rentalListingId);
+
+    return res.json({
+      listings,
+      recomendedListings
+    });
   } catch (error) {
     console.error(error);
     res.json({ error });
@@ -106,6 +117,7 @@ const bookListing = async (req, res) => {
     const newBooking = await Booking.create({
       clientId: client._id,
       rentalListingId: listingId,
+      school: client.school,
       startDate,
       endDate,
     });
