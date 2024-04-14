@@ -8,6 +8,7 @@ const bookingSchema = new Schema({
     ref: 'RentalListing',
     required: true,
   },
+  school: { type: String, required: true },
   startDate: Date,
   endDate: Date,
 });
