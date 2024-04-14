@@ -28,7 +28,7 @@ export default function Input({
         type={type}
         name={name}
         id={name}
-        className={`rounded-md py-2 px-2 h-9`}
+        className={`rounded-md py-2 px-2 h-10`}
         placeholder={placeholder}
         minLength={minLength}
         maxLength={maxLength}
