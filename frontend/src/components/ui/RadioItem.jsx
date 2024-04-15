@@ -7,6 +7,7 @@ function RadioItem({
   name,
   selectedRole,
   handleRoleSelection,
+  index
 }) {
   const defaultClassName = 'flex items-center relative radio-container';
   const combinedClassName = className
@@ -23,6 +24,7 @@ function RadioItem({
         value={value}
         checked={selectedRole === value}
         onChange={handleRoleSelection}
+        tabIndex={index}
       />
       <label htmlFor={value} className="radio-label cursor-pointer">
         {label}
@@ -40,4 +42,5 @@ RadioItem.propTypes = {
   value: PropTypes.string,
   selectedRole: PropTypes.string,
   handleRoleSelection: PropTypes.func,
+  index: PropTypes.number
 };
