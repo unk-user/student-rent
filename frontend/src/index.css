@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-500 font-[Rubik];
+  @apply bg-[hsl(0,0%,75%)] font-[Rubik];
 }
 
 #root {
@@ -41,13 +41,24 @@ input {
 
 .radio-input {
   @apply appearance-none bg-gray-300 w-[16px] h-[16px]
-  rounded mb-[2px] checked:bg-[#354FB8];
+  rounded mb-[2px] checked:bg-[#354FB8] border border-black border-opacity-20 checked:hover:bg-[#354FB8] focus:outline-[#354FB8] hover:bg-gray-200;
 }
 
 .radio-container .radio-input:checked ~ .radio-label {
-  @apply text-[#354FB8]
+  @apply text-[#354FB8];
 }
 
-.range-circle {
-  @apply select-none;
+.ripple {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.2);
+  animation: ripple 600ms linear;
+  border-radius: 50%;
+  transform: scale(0);
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
 }
