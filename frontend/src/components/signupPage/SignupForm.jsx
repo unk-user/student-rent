@@ -13,6 +13,21 @@ function SignupForm() {
     setSelectedRole(e.target.value);
   };
 
+  const cityData = [
+    'Casablanca',
+    'Rabat',
+    'Fes',
+    'Tangier',
+    'Marrakesh',
+    'Sale',
+    'Agadir',
+    'Meknes',
+    'Oujda',
+    'Kenitra',
+    'Tetouan',
+    'Al Hoceima',
+  ];
+
   return (
     <Form
       className="relative border-2 rounded-lg pt-4 pb-2 px-6 w-[400px] flex flex-col items-center"
@@ -83,7 +98,7 @@ function SignupForm() {
             />
             <div>
               <p className="font-medium mb-1">Select your city</p>
-              <ComboBox />
+              <ComboBox data={cityData} name={'city'} label={'Select city'}/>
             </div>
           </div>
         </div>
