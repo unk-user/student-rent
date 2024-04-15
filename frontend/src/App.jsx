@@ -39,7 +39,7 @@ function App() {
       element: <ClientRoute />,
       children: [
         {
-          path:'home',
+          path:'',
           element: <HomePage />,
         },
       ],
