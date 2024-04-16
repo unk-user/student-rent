@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { redirect } from 'react-router-dom';
 
-const rootLoader =
+const authLoader =
   ({ authContext }) =>
   async () => {
     const { auth, setAuth } = authContext;
@@ -23,4 +23,4 @@ const rootLoader =
     return auth;
   };
 
-export default rootLoader;
+export default authLoader;
