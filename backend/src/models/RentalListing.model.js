@@ -13,6 +13,7 @@ const rentalListingSchema = new Schema({
   bathrooms: { type: Number },
   students: [{ type: Schema.Types.ObjectId, ref: 'Client' }],
   images: [{ type: String }],
+  category: {type: String, enum: ['appartment', 'studio', 'room']},
   landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true },
 });
 
