@@ -4,11 +4,17 @@ import Slider from '@mui/material/Slider';
 import NumberInput from '../ui/NumberInput';
 import Button from '../ui/Button';
 
-function Sidebar() {
-  const [selectedRentalPeriod, setSelectedRentalPeriod] = useState('all');
-  const [priceRange, setPriceRange] = useState([0, 4000]);
-  const [bedrooms, setBedrooms] = useState(1);
-  const [bathrooms, setBathrooms] = useState(1);
+function Sidebar({
+  selectedRentalPeriod,
+  setSelectedRentalPeriod,
+  priceRange,
+  setPriceRange,
+  bedrooms,
+  setBedrooms,
+  bathrooms,
+  setBathrooms,
+  handleClick
+}) {
 
   function valueText(value) {
     return `${value}DH`;
@@ -53,7 +59,7 @@ function Sidebar() {
           <div className="pl-2 mb-2">
             <RadioItem
               name={'rental-period'}
-              value={'all'}
+              value={'All'}
               selectedRole={selectedRentalPeriod}
               handleRoleSelection={handlePeriodSelection}
               label={'All'}
@@ -133,7 +139,13 @@ function Sidebar() {
               />
             </div>
           </div>
-          <Button type='button' className={'bg-[#354FB8] text-white text-[1.2rem] mt-4'}>Apply</Button>
+          <Button
+            type="button"
+            handleClick={handleClick}
+            className={'bg-[#354FB8] text-white text-[1.2rem] mt-4'}
+          >
+            Apply
+          </Button>
         </div>
       </div>
     </aside>
