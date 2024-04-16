@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 function ComboBox({
-  data,
+  options,
   withSearch = true,
   className,
   name,
@@ -17,27 +17,28 @@ function ComboBox({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedCity] = useState(initialValue);
-  const inputRef = useRef(null);
-  const inputRadio = useRef(null);
-  const comboBoxRef = useRef(null);
+  const inputRef = useRef();
+  const inputRadio = useRef();
+  const comboBoxRef = useRef();
 
   useEffect(() => {
-    if (isOpen && withSearch) {
-      inputRef.current.focus();
-    }
-
     const handleClickOutside = (event) => {
-      if (comboBoxRef.current && !comboBoxRef.current.contains(event.target)) {
+      if (!comboBoxRef.current?.contains(event.target)) {
         setIsOpen(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, withSearch]);
+  });
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
 
   const handleSelection = (e) => {
     inputRadio.current.value = e.target.textContent;
@@ -45,12 +46,16 @@ function ComboBox({
     setIsOpen(false);
   };
 
-  const filteredData = data.filter((item) =>
+  const filteredData = options.filter((item) =>
     item.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleButtonClick = () => {
-    setIsOpen(!isOpen);
+  const handleButtonClick = (event) => {
+    if (event.detail > 2) {
+      event.preventDefault(); // Prevent default button behavior
+      return;
+    }
+    setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
   const handleSearchChange = (e) => {
@@ -58,11 +63,7 @@ function ComboBox({
   };
 
   return (
-    <div
-      id={`${name}-combobox`}
-      ref={comboBoxRef}
-      className={`relative w-fit h-full`}
-    >
+    <div ref={comboBoxRef} className={`relative w-fit h-full`}>
       <Button
         className={`text-ellipsis py-1 h-full w-44 flex justify-between items-center  ${
           className || ''
@@ -86,8 +87,7 @@ function ComboBox({
       <AnimatePresence mode="wait">
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isOpen ? 1 : 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className={`${
@@ -135,7 +135,7 @@ function ComboBox({
 }
 
 ComboBox.propTypes = {
-  data: PropTypes.array,
+  options: PropTypes.array,
 };
 
 export default ComboBox;
