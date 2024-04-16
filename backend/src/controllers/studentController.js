@@ -11,13 +11,13 @@ const getListings = async (req, res) => {
       return { ...acc, price: { $gte: curr.min, $lte: curr.max } };
     }
     if (curr.field === 'period') {
-      return curr.value === 'All' ? acc : { ...acc, category: curr.value };
+      return curr.value === 'All' ? acc : { ...acc, period: curr.value.toLowerCase() };
     }
     if (curr.field === 'bathrooms') {
-      return { ...acc, bathrooms: curr.value };
+      return curr.value !== 0 ? { ...acc, bathrooms: curr.value } : acc;
     }
-    if (curr.field === 'rooms') {
-      return { ...acc, bedrooms: curr.value };
+    if (curr.field === 'bedrooms') {
+      return curr.value !== 0 ? { ...acc, rooms: curr.value } : acc;
     }
     return acc;
   }, {});
