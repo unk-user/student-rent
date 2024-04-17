@@ -77,8 +77,8 @@ function HomePage() {
         setBathrooms={setBathrooms}
         handleClick={applyFilters}
       />
-      <section className="flex flex-col flex-1">
-        <header className="py-4 w-full flex justify-center items-center gap-2">
+      <section className="flex px-2 flex-col flex-1 lg:ml-[308px]">
+        <header className="py-4 flex w-min md:w-fit flex-wrap justify-end m-auto items-center gap-2">
           <Searchbar />
           <ComboBox
             options={(() =>
@@ -90,30 +90,34 @@ function HomePage() {
             label="sort by:"
           />
         </header>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-10 py-2 px-6 md:grid-cols-2 md:gap-8 md:px-4 xl:grid-cols-3 xl:px-2 xl:gap-4 2xl:grid-cols-4">
           {rentalListings.map((listing, index) => (
             <div key={index}>
-              <div className="w-full aspect-square bg-slate-500 rounded-2xl">image container</div>
-              <ul className='px-2 py-1'>
+              <div className="w-full aspect-square bg-slate-500 rounded-2xl">
+                image container
+              </div>
+              <ul className="px-2 py-1">
                 <li className="flex items-center justify-between">
-                  <p>{`${listing.price}DH`}</p>
-                  <div className="px-2 py-1 rounded-md bg-gray-500">
+                  <p className='text-[#354FB8] font-semibold'>{`${listing.price}DH`}</p>
+                  <div className="px-2 py-1 rounded-md bg-[#F6CA45]">
                     {listing.category}
                   </div>
                 </li>
-                <li className="flex items-center justify-between">
-                  <p>{listing.address}</p>
-                  <span className="flex items-center">
-                    <LiaBedSolid className="text-2xl" />
-                    {listing.rooms}
-                  </span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <p>{listing.city}</p>
-                  <span className="flex items-center">
-                    <LiaBathSolid className="text-2xl" />
-                    {listing.bathrooms}
-                  </span>
+                <li className="flex justify-between mt-1">
+                  <div className="flex flex-col">
+                    <p>{listing.address}</p>
+                    <p>{listing.city}</p>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="flex  gap-1 items-center">
+                      <LiaBathSolid className="text-2xl" />
+                      {listing.bathrooms}
+                    </span>
+                    <span className="flex gap-1 items-center">
+                      <LiaBedSolid className="text-2xl" />
+                      {listing.rooms}
+                    </span>
+                  </div>
                 </li>
               </ul>
             </div>
