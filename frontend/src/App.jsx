@@ -7,7 +7,7 @@ import ClientRoute from './components/clientPage/ClientLayout';
 import AuthContext from './context/AuthProvider';
 import { useContext } from 'react';
 import axios from 'axios';
-import rootLoader from './utils/rootLoader';
+import authLoader from './utils/authLoader';
 import HomePage from './components/clientPage/HomePage';
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      loader: rootLoader({ authContext }),
+      loader: authLoader({ authContext }),
       element: <RootComponent />,
     },
     {
