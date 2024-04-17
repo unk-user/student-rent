@@ -1,16 +1,10 @@
-import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
-import { useEffect } from 'react';
-
+import { Outlet } from "react-router-dom";
 function ClientRoute() {
-  useEffect(() => {
-    console.log(document.cookie);
-  });
+  
 
   return (
-    <article>
-      <Navbar />
-      <Outlet />
+    <article className="min-h-screen my-2">
+      <Outlet/>
     </article>
   );
 }
