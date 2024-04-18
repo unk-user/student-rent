@@ -2,7 +2,7 @@ import ComboBox from '../ui/ComboBox';
 import Searchbar from './Searchbar';
 import { Navigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import AuthContext from '../../context/AuthProvider';
 import axios from 'axios';
 import { LiaBathSolid } from 'react-icons/lia';
@@ -10,34 +10,31 @@ import { LiaBedSolid } from 'react-icons/lia';
 
 function HomePage() {
   const [rentalListings, setRentalListings] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreListings, setHasMoreListings] = useState(true);
   const [loadingListings, setLoadingListings] = useState(true);
   const [selectedRentalPeriod, setSelectedRentalPeriod] = useState('All');
   const [priceRange, setPriceRange] = useState([0, 4000]);
   const [bedrooms, setBedrooms] = useState(0);
   const [bathrooms, setBathrooms] = useState(0);
-
+  const [category, setCategory] = useState('All');
   const { auth } = useContext(AuthContext);
 
-  if (!auth) return <Navigate to="/" replace />;
-
-  useEffect(() => {
-    fetchListings();
-  }, []);
-
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoadingListings(true);
     const filtersArray = [
       { field: 'price', min: priceRange[0], max: priceRange[1] },
       { field: 'period', value: selectedRentalPeriod },
       { field: 'bedrooms', value: bedrooms },
       { field: 'bathrooms', value: bathrooms },
+      { field: 'category', value: category },
     ];
 
     try {
       const response = await axios.get(
-        `${
-          import.meta.env.REACT_APP_API_URI
-        }student/listings?offset=0&filters=${JSON.stringify(filtersArray)}`,
+        `${import.meta.env.REACT_APP_API_URI}student/listings?offset=${
+          (currentPage - 1) * 8
+        }&filters=${JSON.stringify(filtersArray)}`,
         {
           headers: {
             authorization: `Bearer ${auth.accessToken}`,
@@ -45,18 +42,63 @@ function HomePage() {
         }
       );
       console.log(response.data);
-      const totalListings = response.data.recomendedListings.concat(
-        response.data.listings
+      const totalListings =
+        currentPage === 1
+          ? response.data.recomendedListings.concat(response.data.listings)
+          : response.data.listings;
+      setRentalListings((prevListings) => [...prevListings, ...totalListings]);
+      setHasMoreListings(
+        totalListings.length === 8 + response.data.recomendedListings.length
       );
-      setRentalListings(totalListings);
     } catch (error) {
       console.error(error);
     }
     setLoadingListings(false);
-  };
+  }, [
+    priceRange,
+    selectedRentalPeriod,
+    bedrooms,
+    bathrooms,
+    category,
+    currentPage,
+    auth,
+    setRentalListings,
+    setHasMoreListings,
+    setLoadingListings,
+  ]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = document.documentElement.scrollTop;
+      const clientHeight = document.documentElement.clientHeight;
+
+      if (
+        scrollTop + clientHeight >= scrollHeight &&
+        hasMoreListings
+      ) {
+        fetchListings();
+        setCurrentPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    const initialFetch = () => {
+      if (currentPage === 1) {
+        setCurrentPage(2);
+        fetchListings();
+      }
+    };
+
+    initialFetch();
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  });
+
+  if (!auth) return <Navigate to="/" replace />;
 
   const applyFilters = () => {
-    fetchListings();
+    setCurrentPage(1);
   };
 
   const sortOptions = [
@@ -79,7 +121,7 @@ function HomePage() {
       />
       <section className="flex px-2 flex-col flex-1 lg:ml-[308px]">
         <header className="py-4 flex w-min md:w-fit flex-wrap justify-end m-auto items-center gap-2">
-          <Searchbar />
+          <Searchbar setCategory={setCategory} />
           <ComboBox
             options={(() =>
               sortOptions.map((option) => {
@@ -98,7 +140,7 @@ function HomePage() {
               </div>
               <ul className="px-2 py-1">
                 <li className="flex items-center justify-between">
-                  <p className='text-[#354FB8] font-semibold'>{`${listing.price}DH`}</p>
+                  <p className="text-[#354FB8] font-semibold">{`${listing.price}DH`}</p>
                   <div className="px-2 py-1 rounded-md bg-[#F6CA45]">
                     {listing.category}
                   </div>
