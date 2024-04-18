@@ -98,7 +98,11 @@ function SignupForm() {
             />
             <div>
               <p className="font-medium mb-1">Select your city</p>
-              <ComboBox data={cityData} name={'city'} label={'Select city'}/>
+              <ComboBox
+                options={cityData}
+                name={'city'}
+                label={'Select city'}
+              />
             </div>
           </div>
         </div>
