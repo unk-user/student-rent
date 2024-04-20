@@ -76,6 +76,10 @@ const registerUser = async (req, res) => {
       role,
     });
 
+    const accessToken = generateAccessToken(newUser._id, newUser.role);
+    const refreshToken = generateRefreshToken(newUser._id, newUser.role);
+    newUser.refreshTokens = [refreshToken];
+
     await newUser.save();
     if (role === 'landlord') {
       const newLandlord = new Landlord({
@@ -93,11 +97,6 @@ const registerUser = async (req, res) => {
 
       await newClient.save();
     }
-
-    const accessToken = generateAccessToken(newUser._id, newUser.role);
-    const refreshToken = generateRefreshToken(newUser._id, newUser.role);
-    newUser.refreshTokens = [refreshToken];
-    await newUser.save();
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -121,11 +120,11 @@ const refreshAccessToken = async (req, res) => {
   if (!refreshToken) return res.sendStatus(401);
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    sameSite: 'None',
+    sameSite: 'strict',
     secure: true,
   });
 
-  const user = await User.findOne({ refreshTokens: refreshToken }).exec();
+  const user = await User.findOne({ refreshTokens: refreshToken });
 
   //Detected reuse!
   if (!user) {
@@ -148,18 +147,18 @@ const refreshAccessToken = async (req, res) => {
   const username = user.username;
   const role = user.role;
   const userId = user._id;
-  const newRefreshTokenArray = user.refreshTokens.filter(
-    (rt) => rt !== refreshToken
-  );
 
   jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
     async (err, decoded) => {
+      const newRefreshTokenArray = user.refreshTokens.filter(
+        (rt) => rt !== refreshToken
+      );
       if (err) {
         console.log('error verify token');
         user.refreshTokens = [...newRefreshTokenArray];
-        const result = await user.save();
+        await user.save();
       }
       if (err || user._id.toString() !== decoded.userId) {
         return res.sendStatus(403);
@@ -179,7 +178,7 @@ const refreshAccessToken = async (req, res) => {
           $inc: { __v: 1 },
         },
         { new: true }
-      );
+      ).exec();
 
       if (!updatedUser) {
         console.log('Conflict detected during refresh token update');
