@@ -13,6 +13,7 @@ function ComboBox({
   name,
   label = '',
   initialValue = '',
+  handleChange = () => {},
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +44,7 @@ function ComboBox({
   const handleSelection = (e) => {
     inputRadio.current.value = e.target.textContent;
     setSelectedCity(e.target.textContent);
+    handleChange(e.target.textContent);
     setIsOpen(false);
   };
 
@@ -136,6 +138,12 @@ function ComboBox({
 
 ComboBox.propTypes = {
   options: PropTypes.array,
+  withSearch: PropTypes.bool,
+  className: PropTypes.string,
+  name: PropTypes.string,
+  label: PropTypes.string,
+  initialValue: PropTypes.string,
+  handleChange: PropTypes.func,
 };
 
 export default ComboBox;

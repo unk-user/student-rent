@@ -8,7 +8,7 @@ export default function Button({
   children,
   name = '',
 }) {
-  const defaultClassName = 'border rounded-md px-4 p-2 font-medium relative overflow-hidden';
+  const defaultClassName = 'border rounded-lg px-4 p-2 font-medium relative overflow-hidden';
 
   const combinedClassName = className
     ? `${defaultClassName} ${className}`

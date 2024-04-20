@@ -40,7 +40,7 @@ function NumberInput({ value, setValue, min = 0, max = 20, id, step = 1 }) {
 
 NumberInput.propTypes = {
   value: PropTypes.number,
-  onChange: PropTypes.func,
+  setValue: PropTypes.func,
   min: PropTypes.number,
   max: PropTypes.number,
   id: PropTypes.string,

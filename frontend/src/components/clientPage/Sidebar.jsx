@@ -1,22 +1,13 @@
 import RadioItem from '../ui/RadioItem';
 import { useEffect, useRef, useState } from 'react';
+import { PropTypes } from 'prop-types';
 import Slider from '@mui/material/Slider';
 import NumberInput from '../ui/NumberInput';
 import Button from '../ui/Button';
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 
-function Sidebar({
-  selectedRentalPeriod,
-  setSelectedRentalPeriod,
-  priceRange,
-  setPriceRange,
-  bedrooms,
-  setBedrooms,
-  bathrooms,
-  setBathrooms,
-  handleClick,
-}) {
+function Sidebar({ filters, dispatch, handleClick }) {
   const [isOpen, setIsOpen] = useState(false);
   const sideBarRef = useRef();
 
@@ -25,38 +16,37 @@ function Sidebar({
   };
 
   useEffect(() => {
-    const handleClickOutside = e => {
-      if(!sideBarRef.current.contains(e.target)) {
+    const handleClickOutside = (e) => {
+      if (!sideBarRef.current.contains(e.target)) {
         setIsOpen(false);
       }
-    }
-
+    };
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  function valueText(value) {
-    return `${value}DH`;
-  }
-
-  const minDistance = 100;
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handlePriceChange = (e, newValue, activeThumb) => {
+    const minDistance = 100;
+    
     if (!Array.isArray(newValue)) return;
-
     if (activeThumb === 0) {
-      setPriceRange([
-        Math.min(newValue[0], priceRange[1] - minDistance),
-        priceRange[1],
-      ]);
+      dispatch({
+        type: 'SET_PRICE_RANGE',
+        value: [
+          Math.min(newValue[0], filters.priceRange[1] - minDistance),
+          filters.priceRange[1],
+        ],
+      });
     } else {
-      setPriceRange([
-        priceRange[0],
-        Math.max(newValue[1], priceRange[0] + minDistance),
-      ]);
+      dispatch({
+        type: 'SET_PRICE_RANGE',
+        value: [
+          filters.priceRange[0],
+          Math.max(newValue[1], filters.priceRange[0] + minDistance),
+        ],
+      });
     }
   };
 
@@ -66,16 +56,21 @@ function Sidebar({
   ];
 
   const handlePeriodSelection = (e) => {
-    setSelectedRentalPeriod(e.target.value);
+    dispatch({ type: 'SET_RENTAL_PERIOD', value: e.target.value });
   };
 
   return (
     <motion.aside
       animate={{ transitionDuration: '750ms' }}
-      exit={{ }}
-      className={`fixed h-full pl-2 pb-4 z-30 ${isOpen ? '' : 'max-lg:-ml-[309px]'}`}
+      exit={{}}
+      className={`fixed h-full pl-2 pb-4 z-30 ${
+        isOpen ? '' : 'max-lg:-ml-[309px]'
+      }`}
     >
-      <div ref={sideBarRef} className="w-[300px] h-full  relative flex flex-col rounded-xl px-4 py-4 bg-slate-50">
+      <div
+        ref={sideBarRef}
+        className="w-[300px] h-full  relative flex flex-col rounded-xl px-4 py-4 bg-slate-50"
+      >
         <HiMenuAlt2
           onClick={handleOpen}
           className="lg:hidden absolute -right-9 top-6 text-3xl"
@@ -91,7 +86,7 @@ function Sidebar({
               <RadioItem
                 name={'rental-period'}
                 value={'All'}
-                selectedRole={selectedRentalPeriod}
+                selectedRole={filters.selectedRentalPeriod}
                 handleRoleSelection={handlePeriodSelection}
                 label={'All'}
                 index={0}
@@ -99,7 +94,7 @@ function Sidebar({
               <RadioItem
                 name={'rental-period'}
                 value={'Monthly'}
-                selectedRole={selectedRentalPeriod}
+                selectedRole={filters.selectedRentalPeriod}
                 handleRoleSelection={handlePeriodSelection}
                 label={'Monthly'}
                 index={1}
@@ -107,7 +102,7 @@ function Sidebar({
               <RadioItem
                 name={'rental-period'}
                 value={'Yearly'}
-                selectedRole={selectedRentalPeriod}
+                selectedRole={filters.selectedRentalPeriod}
                 handleRoleSelection={handlePeriodSelection}
                 label={'Yearly'}
                 index={2}
@@ -118,10 +113,10 @@ function Sidebar({
               <Slider
                 getAriaLabel={() => 'Minimum distance'}
                 step={50}
-                value={priceRange}
+                value={filters.priceRange}
                 onChange={handlePriceChange}
                 valueLabelDisplay="auto"
-                getAriaValueText={valueText}
+                getAriaValueText={(value) => `${value}DH`}
                 disableSwap
                 marks={priceMarks}
                 max={4000}
@@ -154,9 +149,11 @@ function Sidebar({
                   <h6>Bedrooms</h6>
                 </label>
                 <NumberInput
-                  value={bedrooms}
+                  value={filters.bedrooms}
                   id={'bedrooms-number'}
-                  setValue={setBedrooms}
+                  setValue={(value) =>
+                    dispatch({ type: 'SET_BEDROOMS', value: value })
+                  }
                 />
               </div>
               <div>
@@ -164,9 +161,11 @@ function Sidebar({
                   <h6>Bathrooms</h6>
                 </label>
                 <NumberInput
-                  value={bathrooms}
+                  value={filters.bathrooms}
                   id={'bathrooms-number'}
-                  setValue={setBathrooms}
+                  setValue={(value) =>
+                    dispatch({ type: 'SET_BATHROOMS', value: value })
+                  }
                 />
               </div>
             </div>
@@ -185,3 +184,9 @@ function Sidebar({
 }
 
 export default Sidebar;
+
+Sidebar.propTypes = {
+  filters: PropTypes.object,
+  dispatch: PropTypes.func,
+  handleClick: PropTypes.func,
+};
