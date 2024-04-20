@@ -4,14 +4,16 @@ const Booking = require('../models/Booking.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
-  const { offset = 0, limit = 12, filters = '[]', sort = '' } = req.query;
+  const { offset = 0, limit = 8, filters = '[]', sort = '' } = req.query;
   const parsedFilters = JSON.parse(filters);
   const filter = parsedFilters.reduce((acc, curr) => {
     if (curr.field === 'price') {
       return { ...acc, price: { $gte: curr.min, $lte: curr.max } };
     }
     if (curr.field === 'period') {
-      return curr.value === 'All' ? acc : { ...acc, period: curr.value.toLowerCase() };
+      return curr.value === 'All'
+        ? acc
+        : { ...acc, period: curr.value.toLowerCase() };
     }
     if (curr.field === 'bathrooms') {
       return curr.value !== 0 ? { ...acc, bathrooms: curr.value } : acc;
@@ -19,12 +21,17 @@ const getListings = async (req, res) => {
     if (curr.field === 'bedrooms') {
       return curr.value !== 0 ? { ...acc, rooms: curr.value } : acc;
     }
+    if (curr.field === 'category') {
+      return curr.value.toLowerCase() === 'all'
+        ? acc
+        : { ...acc, category: curr.value.toLowerCase() };
+    }
     return acc;
   }, {});
   const parsedSort = sort ? JSON.parse(sort) : {};
   const sortOptions = {};
-  if (parsedSort.field && parsedSort.direction) {
-    sortOptions[parsedSort.field] = Number(parsedSort.direction);
+  if (parsedSort.field && parsedSort.sort) {
+    sortOptions[parsedSort.field] = Number(parsedSort.sort);
   }
   console.log(filter, sortOptions);
   try {
@@ -34,15 +41,15 @@ const getListings = async (req, res) => {
       .skip(offset)
       .limit(limit);
 
-      const recomendedBookings = await Booking.find({
+    const recomendedBookings = await Booking.find({
       rentalListingId: { $in: listings.map((l) => l._id) },
       school: client.school,
     }).populate('rentalListingId');
-    const recomendedListings = recomendedBookings.map(b => b.rentalListingId);
+    const recomendedListings = recomendedBookings.map((b) => b.rentalListingId);
 
     return res.json({
       listings,
-      recomendedListings
+      recomendedListings,
     });
   } catch (error) {
     console.error(error);
