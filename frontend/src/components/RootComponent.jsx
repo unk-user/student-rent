@@ -1,10 +1,16 @@
-import { useLoaderData, Navigate } from 'react-router-dom';
+import { useEffect, useContext } from 'react';
+import AuthContext from '../context/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 
 function RootComponent() {
-  const auth = useLoaderData();
+  const { auth, refreshAccessToken } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  if(auth.role === 'landlord') return <Navigate to='/landlord'/>
-  if(auth.role === 'client') return <Navigate to='/client'/>
+  useEffect(() => {
+    refreshAccessToken();
+    if (!auth) navigate('/login', { replace: true });
+    else navigate(`/${auth.role}`, { replace: true });
+  }, [refreshAccessToken, auth, navigate]);
 }
 
 export default RootComponent;
