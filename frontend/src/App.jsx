@@ -7,8 +7,8 @@ import ClientRoute from './components/clientPage/ClientLayout';
 import AuthContext from './context/AuthProvider';
 import { useContext } from 'react';
 import axios from 'axios';
-import authLoader from './utils/authLoader';
 import HomePage from './components/clientPage/HomePage';
+import ListingPage from './components/clientPage/ListingPage';
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -16,7 +16,6 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      loader: authLoader({ authContext }),
       element: <RootComponent />,
     },
     {
@@ -39,8 +38,12 @@ function App() {
       element: <ClientRoute />,
       children: [
         {
-          path:'',
+          path: '',
           element: <HomePage />,
+        },
+        {
+          path: ':listingId',
+          element: <ListingPage />,
         },
       ],
     },
