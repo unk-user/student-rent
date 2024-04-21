@@ -60,7 +60,16 @@ const getListings = async (req, res) => {
 const getListing = async (req, res) => {
   const listingId = req.params.id;
   try {
-    const listing = await RentalListing.findById(listingId);
+    const listing = await RentalListing.findById(listingId)
+      .populate({
+        path: 'students',
+        populate: {
+          path: 'userId',
+          model: 'User',
+          select: '-refreshTokens -hash',
+        },
+      })
+      .populate('landlordId');
     if (!listing) return res.sendStatus(404);
     return res.json({ listing });
   } catch (error) {
