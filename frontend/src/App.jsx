@@ -8,7 +8,7 @@ import AuthContext from './context/AuthProvider';
 import { useContext } from 'react';
 import axios from 'axios';
 import HomePage from './components/clientPage/HomePage';
-import ListingPage from './components/clientPage/ListingPage';
+import ListingPage from './components/ListingPage/ListingPage';
 
 function App() {
   const authContext = useContext(AuthContext);

@@ -2,11 +2,12 @@ import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AuthContext from '../../context/AuthProvider';
+import BookingCard from './BookingCard';
 
 function ListingPage() {
   const { listingId } = useParams();
-  const [listing, setListing] = useState(null);
   const { auth, refreshAccessToken } = useContext(AuthContext);
+  const [listing, setListing] = useState(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
   const fetchListing = useCallback(async () => {
@@ -50,9 +51,17 @@ function ListingPage() {
     };
   }, [fetchListing, auth, refreshAccessToken]);
 
-  if (shouldRedirect) return <Navigate to="/login" replace/>;
+  if (shouldRedirect) return <Navigate to="/login" replace />;
 
-  return <div>{listing && listing.price}</div>;
+  return (
+    <dv>
+      {listing && (
+        <>
+          <BookingCard listing={listing} />
+        </>
+      )}
+    </dv>
+  );
 }
 
 export default ListingPage;
