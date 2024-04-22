@@ -33,7 +33,8 @@ const getListing = async (req, res) => {
     const landlordId = landlord._id;
     if (!rentalListing || !landlord)
       return res.status(404).json({ userId, listingId });
-    if (!rentalListing.landlordId.equals(landlordId)) return res.sendStatus(403);
+    if (!rentalListing.landlordId.equals(landlordId))
+      return res.sendStatus(403);
     return res.json({ rentalListing });
   } catch (error) {
     console.error('error fetching listing:', error);
@@ -88,7 +89,8 @@ const updateListing = async (req, res) => {
 };
 
 const addStudent = async (req, res) => {
-  const { clientId, listingId } = req.body;
+  const { clientId } = req.body;
+  const { listingId } = req.params;
   try {
     const student = await Client.findById(clientId);
     const listing = await RentalListing.findById(listingId);

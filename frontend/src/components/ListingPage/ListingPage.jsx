@@ -1,14 +1,21 @@
 import axios from 'axios';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AuthContext from '../../context/AuthProvider';
 import BookingCard from './BookingCard';
+import PreviewImages from '../ui/PreviewImages';
+import Facilities from './Facilities';
+import LandlordCard from '../ui/LandlordCard';
+import Reviews from './Reviews';
 
 function ListingPage() {
   const { listingId } = useParams();
   const { auth, refreshAccessToken } = useContext(AuthContext);
   const [listing, setListing] = useState(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const landlordProperties = useMemo(
+    () => listing && listing.landlordId.properties.length
+  , [listing]);
 
   const fetchListing = useCallback(async () => {
     try {
@@ -54,13 +61,32 @@ function ListingPage() {
   if (shouldRedirect) return <Navigate to="/login" replace />;
 
   return (
-    <dv>
+    <>
       {listing && (
         <>
-          <BookingCard listing={listing} />
+          <main className="px-12">
+            <header>
+              <h2>{listing.title}</h2>
+              <h5>{listing.address}</h5>
+            </header>
+            <section className="flex w-full gap-2">
+              <div className="flex-1">
+                <PreviewImages />
+                <Facilities listing={listing} />
+                <LandlordCard
+                  name={listing.landlordId.userId.username}
+                  properties={landlordProperties}
+                />
+              </div>
+              <BookingCard listing={listing} />
+            </section>
+            <div>
+              <Reviews />
+            </div>
+          </main>
         </>
       )}
-    </dv>
+    </>
   );
 }
 
