@@ -1,10 +1,14 @@
 import PropTypes from 'prop-types';
 import Button from '../ui/Button';
 import AnonymousResidentCard from '../ui/AnonymousResidentCard';
+import { useContext, useState } from 'react';
+import AuthContext from '../../context/AuthProvider';
 
 function BookingCard({ listing }) {
+  
+
   return (
-    <div className="p-2 border-4 rounded-lg">
+    <div className="p-2 border-4 rounded-lg max-w-[460px] bg-gray-200 h-max sticky top-4">
       <ul>
         <li>
           <h6>Address</h6>
@@ -15,7 +19,7 @@ function BookingCard({ listing }) {
           <div>
             {listing.students.length > 0 ? (
               listing.students.map((student) => (
-                <AnonymousResidentCard key={student._id} student={student}/>
+                <AnonymousResidentCard key={student._id} student={student} />
               ))
             ) : (
               <p>Empty</p>
@@ -24,7 +28,7 @@ function BookingCard({ listing }) {
         </li>
         <li>
           <h6>Renting period</h6>
-          <p>{listing.period}</p>
+          <div>{listing.period}</div>
         </li>
         <li>
           <h6>Total price</h6>
@@ -36,7 +40,9 @@ function BookingCard({ listing }) {
           <h6>Pricing per resident</h6>
           <p>(total price / residents)</p>
         </div>
-        <Button name='book-btn' className='text-xl'>Book</Button>
+        <Button name="book-btn" className="text-xl text-white bg-black">
+          Book
+        </Button>
       </div>
     </div>
   );
