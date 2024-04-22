@@ -69,7 +69,14 @@ const getListing = async (req, res) => {
           select: '-refreshTokens -hash',
         },
       })
-      .populate('landlordId');
+      .populate({
+        path: 'landlordId',
+        populate: {
+          path: 'userId',
+          model: 'User',
+          select: '-refreshTokens -hash',
+        },
+      });
     if (!listing) return res.sendStatus(404);
     return res.json({ listing });
   } catch (error) {
