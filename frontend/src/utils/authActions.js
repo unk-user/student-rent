@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './axiosInstance';
 
 export const signupAction =
   ({ authContext }) =>
@@ -6,11 +6,9 @@ export const signupAction =
     try {
       const formData = await request.formData();
       const userData = Object.fromEntries(formData);
-      const response = await axios.post(
-        `${import.meta.env.REACT_APP_API_URI}register`,
-        userData,
-        { withCredentials: true }
-      );
+      const response = await axiosInstance.post(`/register`, userData, {
+        withCredentials: true,
+      });
       console.log(response.data);
       authContext.setAuth(response.data);
       return null;
@@ -25,11 +23,9 @@ export const loginAction =
     try {
       const formData = await request.formData();
       const userData = Object.fromEntries(formData);
-      const response = await axios.post(
-        `${import.meta.env.REACT_APP_API_URI}login`,
-        userData,
-        { withCredentials: true }
-      );
+      const response = await axiosInstance.post(`/login`, userData, {
+        withCredentials: true,
+      });
       console.log(response.data);
       authContext.setAuth(response.data);
       return true;
@@ -39,6 +35,6 @@ export const loginAction =
   };
 
 export const logout = async () => {
-  const response = axios.post(`${import.meta.env.REACT_APP_API_URI}logout`);
+  const response = axiosInstance.post(`/logout`);
   return response;
 };
