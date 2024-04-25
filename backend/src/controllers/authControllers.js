@@ -33,7 +33,7 @@ const loginUser = async (req, res) => {
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'Lax',
       });
 
     user.refreshTokens = [...newRefreshTokenArray, newRefreshToken];
@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.status(200).json({
@@ -101,7 +101,7 @@ const registerUser = async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'Lax',
     });
     res.status(201).json({
       accessToken,
@@ -120,7 +120,7 @@ const refreshAccessToken = async (req, res) => {
   if (!refreshToken) return res.sendStatus(401);
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'Lax',
     secure: true,
   });
 
@@ -189,7 +189,7 @@ const refreshAccessToken = async (req, res) => {
       res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'Lax',
       });
 
       return res.json({ accessToken, username, role, userId });
@@ -205,7 +205,7 @@ const logoutUser = async (req, res) => {
   if (!user) {
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      sameSite: 'None',
+      sameSite: 'Lax',
       secure: true,
     });
     return res.sendStatus(204);
@@ -216,7 +216,7 @@ const logoutUser = async (req, res) => {
   console.log(result);
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    sameSite: 'None',
+    sameSite: 'Lax',
     secure: true,
   });
   return res.sendStatus(204);
