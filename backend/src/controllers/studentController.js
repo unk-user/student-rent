@@ -33,7 +33,6 @@ const getListings = async (req, res) => {
   if (parsedSort.field && parsedSort.sort) {
     sortOptions[parsedSort.field] = Number(parsedSort.sort);
   }
-  console.log(filter, sortOptions);
   try {
     const client = await Client.findOne({ userId });
     const listings = await RentalListing.find({ ...filter, city: client.city })
@@ -41,16 +40,16 @@ const getListings = async (req, res) => {
       .skip(offset)
       .limit(limit);
 
-    const recomendedBookings = await Booking.find({
-      rentalListingId: { $in: listings.map((l) => l._id) },
-      school: client.school,
-    }).populate('rentalListingId');
+    const recomendedBookings =
+      offset === 0
+        ? await Booking.find({
+            rentalListingId: { $in: listings.map((l) => l._id) },
+            school: client.school,
+          }).populate('rentalListingId')
+        : [];
     const recomendedListings = recomendedBookings.map((b) => b.rentalListingId);
-
-    return res.json({
-      listings,
-      recomendedListings,
-    });
+    const totalListings = recomendedListings.concat(listings);
+    return res.json({ totalListings });
   } catch (error) {
     console.error(error);
     res.json({ error });
