@@ -7,23 +7,17 @@ function RootComponent() {
   const { auth, refreshAccessToken, setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   refreshAccessToken();
-  //   if (!auth) navigate('/login', { replace: true });
-  //   else navigate(`/${auth.role}`, { replace: true });
-  // }, [refreshAccessToken, auth, navigate]);
-
-  useEffect(() => {
-    if (auth) return navigate(`/${auth.role}`, { replace: true });
-  }, [auth, navigate]);
-
-  const { status, failureCount } = useQuery({
+  const { status, failureCount, data } = useQuery({
     queryKey: ['refreshToken'],
     queryFn: refreshAccessToken,
     enabled: !auth,
     retry: 2,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (auth || data) return navigate(`/${auth.role}`, { replace: true });
+  }, [auth, navigate, data]);
 
   if (status === 'loading' || status === 'pending')
     return <div>Loading...</div>;
@@ -33,6 +27,8 @@ function RootComponent() {
     setAuth(null);
     return <Navigate to="/login" replace={true} />;
   }
+
+  if (auth) return <Navigate to={`/${auth.role}`} />;
 }
 
 export default RootComponent;
