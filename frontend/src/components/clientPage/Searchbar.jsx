@@ -2,9 +2,9 @@ import ComboBox from '../ui/ComboBox';
 import { IoIosSearch } from 'react-icons/io';
 import PropTypes from 'prop-types';
 
-function Searchbar({ applyCategory }) {
+function Searchbar({ setFilters }) {
   const handleChange = (value) => {
-    applyCategory(value);
+    setFilters((prevFilters) => ({ ...prevFilters, category: value }));
   };
 
   return (
@@ -29,7 +29,7 @@ function Searchbar({ applyCategory }) {
 }
 
 Searchbar.propTypes = {
-  applyCategory: PropTypes.func,
+  setFilters: PropTypes.func,
 };
 
 export default Searchbar;

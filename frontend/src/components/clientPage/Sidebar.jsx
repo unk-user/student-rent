@@ -1,19 +1,60 @@
 import RadioItem from '../ui/RadioItem';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useReducer } from 'react';
 import { PropTypes } from 'prop-types';
 import Slider from '@mui/material/Slider';
 import NumberInput from '../ui/NumberInput';
 import Button from '../ui/Button';
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { motion } from 'framer-motion';
+import { v4 as uuidV4 } from 'uuid';
 
-function Sidebar({ filters, dispatch, handleClick }) {
+function Sidebar({ setFilters }) {
   const [isOpen, setIsOpen] = useState(false);
   const sideBarRef = useRef();
+  const periodOptions = ['All', 'Monthly', 'Yearly'];
+  const priceMarks = [
+    { value: 0, label: '0DH' },
+    { value: 4000, label: '4000DH' },
+  ];
 
-  const handleOpen = () => {
-    setIsOpen((prevOpen) => !prevOpen);
-  };
+  const [filters, dispatch] = useReducer(
+    (state, action) => {
+      switch (action.type) {
+        case 'SET_RENTAL_PERIOD':
+          return {
+            ...state,
+            selectedRentalPeriod: action.value,
+          };
+        case 'SET_PRICE_RANGE':
+          return {
+            ...state,
+            priceRange: action.value,
+          };
+        case 'SET_BEDROOMS':
+          return {
+            ...state,
+            bedrooms: action.value,
+          };
+        case 'SET_BATHROOMS':
+          return {
+            ...state,
+            bathrooms: action.value,
+          };
+        case 'SET_CATEGORY':
+          return {
+            ...state,
+            category: action.value,
+          };
+      }
+    },
+    {
+      selectedRentalPeriod: 'All',
+      priceRange: [0, 5000],
+      bedrooms: 0,
+      bathrooms: 0,
+      category: 'All',
+    }
+  );
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -29,7 +70,7 @@ function Sidebar({ filters, dispatch, handleClick }) {
 
   const handlePriceChange = (e, newValue, activeThumb) => {
     const minDistance = 100;
-    
+
     if (!Array.isArray(newValue)) return;
     if (activeThumb === 0) {
       dispatch({
@@ -50,14 +91,17 @@ function Sidebar({ filters, dispatch, handleClick }) {
     }
   };
 
-  const priceMarks = [
-    { value: 0, label: '0DH' },
-    { value: 4000, label: '4000DH' },
-  ];
-
   const handlePeriodSelection = (e) => {
     dispatch({ type: 'SET_RENTAL_PERIOD', value: e.target.value });
   };
+
+  const handleOpen = () => {
+    setIsOpen((prevOpen) => !prevOpen);
+  };
+
+  const handleClick = () => {
+    setFilters(filters)
+  }
 
   return (
     <motion.aside
@@ -83,30 +127,17 @@ function Sidebar({ filters, dispatch, handleClick }) {
           <div className="flex flex-col mt-2">
             <h6>Rental period</h6>
             <div className="pl-2 mb-2">
-              <RadioItem
-                name={'rental-period'}
-                value={'All'}
-                selectedRole={filters.selectedRentalPeriod}
-                handleRoleSelection={handlePeriodSelection}
-                label={'All'}
-                index={0}
-              />
-              <RadioItem
-                name={'rental-period'}
-                value={'Monthly'}
-                selectedRole={filters.selectedRentalPeriod}
-                handleRoleSelection={handlePeriodSelection}
-                label={'Monthly'}
-                index={1}
-              />
-              <RadioItem
-                name={'rental-period'}
-                value={'Yearly'}
-                selectedRole={filters.selectedRentalPeriod}
-                handleRoleSelection={handlePeriodSelection}
-                label={'Yearly'}
-                index={2}
-              />
+              {periodOptions.map((option, index) => (
+                <RadioItem
+                  key={uuidV4()}
+                  name={'rental-period'}
+                  value={option}
+                  selectedRole={filters.selectedRentalPeriod}
+                  handleRoleSelection={handlePeriodSelection}
+                  label={option}
+                  index={index}
+                />
+              ))}
             </div>
             <h6>Price range</h6>
             <div className="px-4">
@@ -186,7 +217,5 @@ function Sidebar({ filters, dispatch, handleClick }) {
 export default Sidebar;
 
 Sidebar.propTypes = {
-  filters: PropTypes.object,
-  dispatch: PropTypes.func,
-  handleClick: PropTypes.func,
+  setFilters: PropTypes.func
 };
