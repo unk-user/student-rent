@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function useInfiniteListingsQuery({ filters, sortOption }) {
   const { auth, refreshAccessToken } = useContext(AuthContext);
+  const [authErrorCount, setAuthErrorCount] = useState(0);
   const navigate = useNavigate();
   const [inView, setInView] = useState(false);
 
@@ -27,7 +28,7 @@ export default function useInfiniteListingsQuery({ filters, sortOption }) {
     )}&sort=${JSON.stringify(sortOption)}`;
     if (!auth) {
       try {
-        const newAuth = refreshAccessToken();
+        const newAuth = await refreshAccessToken();
         const response = await axiosInstance(url, {
           headers: { Authorization: `Bearer ${newAuth.accessToken}` },
         });
@@ -44,24 +45,42 @@ export default function useInfiniteListingsQuery({ filters, sortOption }) {
     return response.data;
   };
 
-  const { data, status, fetchStatus, fetchNextPage, hasNextPage, refetch } =
-    useInfiniteQuery({
-      queryFn: fetchListings,
-      queryKey: ['rental-listings', filters, sortOption],
-      initialPageParam: 0,
-      retry: false,
-      refetchOnWindowFocus: false,
-      getNextPageParam: (lastPage, _, lastPageParam) =>
-        lastPage.totalListings.length === 12 ? lastPageParam + 12 : null,
-    });
+  const {
+    data,
+    status,
+    fetchStatus,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+    error,
+  } = useInfiniteQuery({
+    queryFn: fetchListings,
+    queryKey: ['rental-listings', filters, sortOption, auth?.accessToken],
+    initialPageParam: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    getNextPageParam: (lastPage, _, lastPageParam) =>
+      lastPage.totalListings.length === 12 ? lastPageParam + 12 : null,
+  });
 
   useEffect(() => {
-    if (status === 'error') return navigate('/login');
-  }, [status, navigate]);
+    if (
+      status === 'error' &&
+      error?.response.status === 401 &&
+      authErrorCount < 2
+    ) {
+      console.log(authErrorCount);
+      setAuthErrorCount((prevCount) => prevCount + 1);
+      refreshAccessToken();
+    } else if (status === 'error' && authErrorCount > 1) {
+      navigate('/login', { replace: true });
+    } else if (status === 'success') {
+      setAuthErrorCount(0);
+    }
+  }, [status, navigate, error, refreshAccessToken, authErrorCount]);
 
   useEffect(() => {
     if (inView && hasNextPage && status === 'success') {
-      console.log('trying to fetch next page');
       fetchNextPage();
       setInView(false);
     }
