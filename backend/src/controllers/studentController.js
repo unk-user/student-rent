@@ -4,7 +4,7 @@ const Booking = require('../models/Booking.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
-  const { offset = 0, limit = 8, filters = '[]', sort = '' } = req.query;
+  const { offset = 0, limit = 12, filters = '[]', sort = '' } = req.query;
   const parsedFilters = JSON.parse(filters);
   const filter = parsedFilters.reduce((acc, curr) => {
     if (curr.field === 'price') {
@@ -49,9 +49,9 @@ const getListings = async (req, res) => {
         : [];
     const recomendedListings = recomendedBookings.map((b) => b.rentalListingId);
     const totalListings = recomendedListings.concat(listings);
-    return res.json({ totalListings });
+    return res.status(200).json({ totalListings });
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     res.json({ error });
   }
 };
