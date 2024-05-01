@@ -14,10 +14,10 @@ const verifyToken = async (req, res, next) => {
     req.role = role;
     const user = await User.findOne({ _id: userId });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid token' });
+      return res.status(403).json({ message: 'Invalid token' });
     }
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid token' });
   }
   next();
 };
