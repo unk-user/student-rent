@@ -3,12 +3,15 @@ import Signup from './components/signupPage/Signup';
 import Login from './components/loginPage/Login';
 import { loginAction, logout, signupAction } from './utils/authActions';
 import RootComponent from './components/RootComponent';
-import ClientRoute from './components/clientPage/ClientLayout';
+import ClientRoute from './components/clientPages/ClientLayout';
 import AuthContext from './context/AuthProvider';
 import { useContext } from 'react';
 import axios from 'axios';
-import HomePage from './components/clientPage/HomePage';
+import HomePage from './components/clientPages/HomePage';
 import ListingPage from './components/ListingPage/ListingPage';
+import LandlordLayout from './components/landlordPages/LandlordLayout';
+import PropertiesPage from './components/landlordPages/PropertiesPage';
+import PropertyDetailsPage from './components/landlordPages/PropertyDetailsPage';
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -44,6 +47,17 @@ function App() {
         {
           path: ':listingId',
           element: <ListingPage />,
+        },
+      ],
+    },
+    {
+      path: '/landlord',
+      element: <LandlordLayout />,
+      children: [
+        {
+          path: 'properties',
+          element: <PropertiesPage />,
+          children: [{ path: ':propertyId', element: <PropertyDetailsPage /> }],
         },
       ],
     },
