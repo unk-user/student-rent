@@ -4,6 +4,8 @@ export default function Input({
   className,
   type = 'text',
   name,
+  value,
+  onChange,
   placeholder,
   label,
   minLength = 'none',
@@ -18,17 +20,16 @@ export default function Input({
 
   return (
     <div className={combinedClassName}>
-      <label
-        htmlFor={name}
-        className={`font-medium mb-1 relative `}
-      >
-        {label}
+      <label htmlFor={name} className={`mb-1 relative `}>
+        <h6>{label}</h6>
       </label>
       <input
         type={type}
         name={name}
+        value={value}
+        onChange={onChange}
         id={name}
-        className={`rounded-md py-2 px-2 h-10`}
+        className={`input input-bordered rounded-md py-2 pl-4 px-2 h-11`}
         placeholder={placeholder}
         minLength={minLength}
         maxLength={maxLength}
@@ -47,4 +48,6 @@ Input.propTypes = {
   minLength: PropTypes.any,
   maxLength: PropTypes.any,
   required: PropTypes.bool,
+  value: PropTypes.any,
+  onChange: PropTypes.func,
 };
