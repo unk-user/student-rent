@@ -14,7 +14,7 @@ function Sidebar({ setFilters }) {
   const periodOptions = ['All', 'Monthly', 'Yearly'];
   const priceMarks = [
     { value: 0, label: '0DH' },
-    { value: 4000, label: '4000DH' },
+    { value: 6000, label: '6000DH' },
   ];
 
   const [filters, dispatch] = useReducer(
@@ -49,7 +49,7 @@ function Sidebar({ setFilters }) {
     },
     {
       selectedRentalPeriod: 'All',
-      priceRange: [0, 5000],
+      priceRange: [0, 6000],
       bedrooms: 0,
       bathrooms: 0,
       category: 'All',
@@ -150,7 +150,7 @@ function Sidebar({ setFilters }) {
                 getAriaValueText={(value) => `${value}DH`}
                 disableSwap
                 marks={priceMarks}
-                max={4000}
+                max={6000}
                 sx={{
                   '& .MuiSlider-track': {
                     color: '#354FB8',
