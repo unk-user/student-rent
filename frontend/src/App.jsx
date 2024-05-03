@@ -12,6 +12,7 @@ import ListingPage from './components/ListingPage/ListingPage';
 import LandlordLayout from './components/landlordPages/LandlordLayout';
 import PropertiesPage from './components/landlordPages/PropertiesPage';
 import PropertyDetailsPage from './components/landlordPages/PropertyDetailsPage';
+import EditProperty from './components/landlordPages/EditProperty';
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -59,6 +60,8 @@ function App() {
           element: <PropertiesPage />,
           children: [{ path: ':propertyId', element: <PropertyDetailsPage /> }],
         },
+        { path: 'edit', element: <EditProperty /> },
+        { path: 'edit/:propertyId', element: <EditProperty /> },
       ],
     },
   ]);
