@@ -24,15 +24,16 @@ function Select({
         className="select select-bordered text-base"
         id={name}
         onChange={onChange}
+        value={selected || placeholder}
       >
         {placeholder && (
-          <option disabled selected className="hidden">
+          <option disabled value={placeholder} className="hidden">
             {placeholder}
           </option>
         )}
         {options &&
           options.map((option) => (
-            <option key={uuidV4()} selected={selected === option}>
+            <option key={uuidV4()} value={option}>
               {option}
             </option>
           ))}
@@ -49,7 +50,7 @@ Select.propTypes = {
   label: PropTypes.string,
   options: PropTypes.array,
   onChange: PropTypes.func,
-  selected: PropTypes.string,
+  selected: PropTypes.any,
 };
 
 export default Select;
