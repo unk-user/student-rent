@@ -7,13 +7,16 @@ const rentalListingSchema = new Schema({
   description: { type: String, required: true },
   address: { type: String, required: true },
   city: { type: String, required: true },
-  period: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
+  period: { type: String, enum: ['monthly', 'yearly', 'semester'], default: 'monthly' },
   price: { type: Number, required: true },
   rooms: { type: Number, required: true },
   bathrooms: { type: Number },
   students: [{ type: Schema.Types.ObjectId, ref: 'Client' }],
   images: [{ type: String }],
-  category: {type: String, enum: ['appartment', 'studio', 'room']},
+  category: {
+    type: String,
+    enum: ['appartment', 'studio', 'room', 'dorm'],
+  },
   landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true },
 });
 
