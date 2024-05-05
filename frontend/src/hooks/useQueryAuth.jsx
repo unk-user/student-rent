@@ -4,12 +4,12 @@ import axiosInstance from '../utils/axiosInstance';
 import AuthContext from '../context/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 
-function useQueryAuth({ queryKey, url }) {
+function useQueryAuth({ queryKey, url, role = '' }) {
   const [authErrorCount, setAuthErrorCount] = useState(0);
   const { auth, refreshAccessToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const fetchListing = async () => {
+  const fetchData = async () => {
     if (!auth) {
       try {
         const newAuth = await refreshAccessToken();
@@ -30,12 +30,18 @@ function useQueryAuth({ queryKey, url }) {
   };
 
   const { data, status, error } = useQuery({
-    queryFn: fetchListing,
+    queryFn: fetchData,
     queryKey: [...queryKey, auth?.accessToken],
-    enabled: true,
+    enabled: !!url,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (auth?.role !== role && auth) {
+      navigate(`/${auth.role}`, { replace: true });
+    }
+  }, [auth, navigate, role]);
 
   useEffect(() => {
     if (

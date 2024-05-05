@@ -64,6 +64,12 @@ export default function useInfiniteListingsQuery({ filters, sortOption }) {
   });
 
   useEffect(() => {
+    if (auth?.role === 'landlord') {
+      navigate('/landlord', { replace: true });
+    }
+  }, [auth, navigate]);
+
+  useEffect(() => {
     if (
       status === 'error' &&
       error?.response.status === 401 &&
