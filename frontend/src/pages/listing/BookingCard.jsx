@@ -1,8 +1,5 @@
 import PropTypes from 'prop-types';
-import Button from '../ui/Button';
-import AnonymousResidentCard from '../ui/AnonymousResidentCard';
-import { useContext, useState } from 'react';
-import AuthContext from '../../context/AuthProvider';
+import Button from '@src/components/Button';
 
 function BookingCard({ listing }) {
   
@@ -18,9 +15,8 @@ function BookingCard({ listing }) {
           <h6>Residents: {listing.students.length} / total</h6>
           <div>
             {listing.students.length > 0 ? (
-              listing.students.map((student) => (
-                <AnonymousResidentCard key={student._id} student={student} />
-              ))
+              //TODO: make component for displaying tenant basic data
+              listing.students.map((student, index) => <div key={index}>none</div>) 
             ) : (
               <p>Empty</p>
             )}

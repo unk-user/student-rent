@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import ComboBox from '../ui/ComboBox';
+import ComboBox from '@src/components/ComboBox';
 import Searchbar from './Searchbar';
 import Sidebar from './Sidebar';
 import ListingCard from './ListingCard';

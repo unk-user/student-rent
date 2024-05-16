@@ -1,18 +1,19 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import BookingCard from './BookingCard';
-import PreviewImages from '../ui/PreviewImages';
+import PreviewImages from '@src/components/PreviewImages';
 import Facilities from './Facilities';
-import LandlordCard from '../ui/LandlordCard';
+import LandlordCard from '@src/components/LandlordCard';
 import Reviews from './Reviews';
-import useQueryAuth from '../../hooks/useQueryAuth';
+import useQueryAuth from '@src/hooks/useQueryAuth';
 
 function ListingPage() {
   const { listingId } = useParams();
 
   const { data, status } = useQueryAuth({
     queryKey: [listingId],
-    url: `student/listings/${listingId}`
+    url: `student/listings/${listingId}`,
+    role: 'client',
   });
 
   const landlordPropertiesNumber = useMemo(

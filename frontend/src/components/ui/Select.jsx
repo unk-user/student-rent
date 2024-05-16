@@ -34,7 +34,7 @@ function Select({
         {options &&
           options.map((option) => (
             <option key={uuidV4()} value={option}>
-              {option}
+              {option[0].toUpperCase() + option.slice(1)}
             </option>
           ))}
       </select>

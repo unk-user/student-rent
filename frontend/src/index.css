@@ -4,11 +4,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-[hsl(0,0%,75%)] font-[Rubik];
-}
-
-#root {
-  @apply h-screen min-h-screen;
+  @apply bg-gray-300 font-[Rubik];
 }
 
 h1 {

@@ -12,6 +12,7 @@ function RootComponent() {
     queryFn: refreshAccessToken,
     enabled: !auth,
     retry: 2,
+    retryDelay: 200,
     refetchOnWindowFocus: false,
   });
 

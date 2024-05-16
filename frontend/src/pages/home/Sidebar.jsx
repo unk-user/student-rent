@@ -1,9 +1,9 @@
-import RadioItem from '../ui/RadioItem';
+import RadioItem from '@src/components/RadioItem';
 import { useEffect, useRef, useState, useReducer } from 'react';
 import { PropTypes } from 'prop-types';
 import Slider from '@mui/material/Slider';
-import NumberInput from '../ui/NumberInput';
-import Button from '../ui/Button';
+import NumberInput from '@src/components/NumberInput';
+import Button from '@src/components/Button';
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import { v4 as uuidV4 } from 'uuid';

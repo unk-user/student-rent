@@ -1,18 +1,18 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Signup from './components/signupPage/Signup';
-import Login from './components/loginPage/Login';
+import Signup from './pages/signupPage/Signup';
+import Login from './pages/loginPage/Login';
 import { loginAction, logout, signupAction } from './utils/authActions';
 import RootComponent from './components/RootComponent';
-import ClientRoute from './components/clientPages/ClientLayout';
+import ClientRoute from './student/components/ClientLayout';
 import AuthContext from './context/AuthProvider';
 import { useContext } from 'react';
 import axios from 'axios';
-import HomePage from './components/clientPages/HomePage';
-import ListingPage from './components/ListingPage/ListingPage';
-import LandlordLayout from './components/landlordPages/LandlordLayout';
-import PropertiesPage from './components/landlordPages/PropertiesPage';
-import PropertyDetailsPage from './components/landlordPages/PropertyDetailsPage';
-import EditProperty from './components/landlordPages/EditProperty';
+import HomePage from './student/pages/home/HomePage';
+import ListingPage from './student/pages/listing/ListingPage';
+import LandlordLayout from './landlord/components/LandlordLayout';
+import PropertiesPage from './landlord/pages/property-details/PropertiesPage';
+import PropertyDetailsPage from './landlord/pages/property-details/PropertyDetailsPage';
+import EditProperty from './landlord/pages/property-edit/EditProperty';
 
 function App() {
   const authContext = useContext(AuthContext);

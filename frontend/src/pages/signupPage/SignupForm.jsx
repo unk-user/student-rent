@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Form, Link } from 'react-router-dom';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
-import ErrorPopup from '../ui/ErrorPopup';
-import RadioItem from '../ui/RadioItem';
-import ComboBox from '../ui/ComboBox';
+import Input from '../../components/Input';
+import Button from '../../components/Button';
+import ErrorPopup from '../../components/ErrorPopup';
+import RadioItem from '../../components/RadioItem';
+import ComboBox from '../../components/ComboBox';
 
 function SignupForm() {
   const [selectedRole, setSelectedRole] = useState('client');

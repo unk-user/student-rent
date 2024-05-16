@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
-import AuthContext from '../context/AuthProvider';
+import AuthContext from '@src/context/AuthProvider';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import axiosInstance from '../utils/axiosInstance';
+import axiosInstance from '@src/utils/axiosInstance'
 import { useNavigate } from 'react-router-dom';
 
 export default function useInfiniteListingsQuery({ filters, sortOption }) {
