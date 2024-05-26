@@ -4,6 +4,8 @@ const Client = require('../models/Client.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
+  const { limit = 10, offset = 0 } = req.query;
+
   try {
     const landlord = await Landlord.findOne({ userId }).populate({
       path: 'properties',
@@ -14,8 +16,14 @@ const getListings = async (req, res) => {
       },
     });
     if (!landlord) return res.sendStatus(403);
+    const totalProperties = await RentalListing.countDocuments({
+      landlord: landlord._id,
+    });
+
+    const totalPages = Math.ceil(totalProperties / limit);
+
     const listings = landlord.properties;
-    return res.json({ listings });
+    return res.json({ listings, totalPages });
   } catch (error) {
     console.error('error fetching landlord listings:', error);
     return res.json({ error });

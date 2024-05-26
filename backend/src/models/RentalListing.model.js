@@ -22,6 +22,7 @@ const rentalListingSchema = new Schema({
     enum: ['appartment', 'studio', 'room', 'dorm'],
   },
   landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true },
+  createdAt: { type: Date, default: Date.now() },
 });
 
 rentalListingSchema.post('save', async (rentalListing, next) => {

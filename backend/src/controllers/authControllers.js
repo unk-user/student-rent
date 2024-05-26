@@ -9,19 +9,23 @@ const User = require('../models/User.model');
 const Client = require('../models/Client.model');
 const Landlord = require('../models/Landlord.model');
 
-const loginUser = async (req, res) => {
+const loginOwner = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'User not found. Please check your email and try again.' });
+    }
+
+    if(user.role === 'client') {
+      return res.status(403).json({ message: 'You do not have permission to access this page.' })
     }
 
     const match = await bcrypt.compare(password, user.hash);
     if (!match) {
-      return res.status(403).json({ message: 'wrong password' });
+      return res.status(403).json({ message: 'Incorrect password. Please try again.' });
     }
 
     const accessToken = generateAccessToken(user._id, user.role);
@@ -55,7 +59,59 @@ const loginUser = async (req, res) => {
   } catch (error) {
     console.error('login error:', error);
   }
-};
+}
+
+const loginStudent = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found. Please check your email and try again.' });
+    }
+
+    if(user.role === 'landlord') {
+      return res.status(403).json({ message: 'You do not have permission to access this page.' })
+    }
+
+    const match = await bcrypt.compare(password, user.hash);
+    if (!match) {
+      return res.status(403).json({ message: 'Incorrect password. Please try again.' });
+    }
+
+    const accessToken = generateAccessToken(user._id, user.role);
+    const newRefreshToken = generateRefreshToken(user._id, user.role);
+    const newRefreshTokenArray = !refreshToken
+      ? user.refreshTokens
+      : user.refreshTokens.filter((rt) => rt !== refreshToken);
+    if (refreshToken)
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Lax',
+      });
+
+    user.refreshTokens = [...newRefreshTokenArray, newRefreshToken];
+    const result = await user.save();
+    console.log(result);
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.status(200).json({
+      accessToken,
+      username: user.username,
+      role: user.role,
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error('login error:', error);
+  }
+}
 
 const registerUser = async (req, res) => {
   console.log(req.body);
@@ -223,7 +279,8 @@ const logoutUser = async (req, res) => {
 };
 
 module.exports = {
-  loginUser,
+  loginOwner,
+  loginStudent,
   registerUser,
   refreshAccessToken,
   logoutUser,
