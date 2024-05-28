@@ -4,12 +4,18 @@ const Client = require('../models/Client.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
-  const { limit = 10, offset = 0 } = req.query;
+  const { limit = 10, page = 1, sortField = 'createdAt', sortDirection = -1 } = req.query;
+  const offset = (page - 1) * limit;
+  console.log(limit);
 
   try {
+    //TODO: add limit to the query
     const landlord = await Landlord.findOne({ userId }).populate({
       path: 'properties',
       model: 'RentalListing',
+      limit: limit,
+      skip: offset,
+      options: { sort: { [sortField]: parseInt(sortDirection) } },
       populate: {
         path: 'students',
         model: 'Client',
@@ -17,7 +23,7 @@ const getListings = async (req, res) => {
     });
     if (!landlord) return res.sendStatus(403);
     const totalProperties = await RentalListing.countDocuments({
-      landlord: landlord._id,
+      landlordId: landlord._id,
     });
 
     const totalPages = Math.ceil(totalProperties / limit);
@@ -115,9 +121,12 @@ const addStudent = async (req, res) => {
 
 const deleteListing = async (req, res) => {
   const { listingId } = req.params;
+  console.log(listingId);
   try {
-    const deletedListing = RentalListing.findByIdAndDelete(listingId);
-    if (!deletedListing) return res.sendStatus(404);
+    const deletedListing = await RentalListing.findByIdAndDelete(listingId);
+    if (!deletedListing) {
+      return res.sendStatus(404);
+    }
     return res
       .status(204)
       .json({ message: 'successfully deleted', deleteListing });

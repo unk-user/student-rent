@@ -17,7 +17,7 @@ router.post('/listings', createListing);
 
 router.get('/listings/:listingId', getListing);
 router.put('/listings/:listingId', updateListing);
-router.delete('listings/:listingId', deleteListing);
+router.delete('/listings/:listingId', deleteListing);
 
 router.post('/listings/:listingId/students', addStudent);
 router.delete('/listings/:listingId/students', deleteStudent);
