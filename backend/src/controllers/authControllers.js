@@ -16,16 +16,24 @@ const loginOwner = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found. Please check your email and try again.' });
+      return res
+        .status(401)
+        .json({
+          message: 'User not found. Please check your email and try again.',
+        });
     }
 
-    if(user.role === 'client') {
-      return res.status(403).json({ message: 'You do not have permission to access this page.' })
+    if (user.role === 'client') {
+      return res
+        .status(403)
+        .json({ message: 'You do not have permission to access this page.' });
     }
 
     const match = await bcrypt.compare(password, user.hash);
     if (!match) {
-      return res.status(403).json({ message: 'Incorrect password. Please try again.' });
+      return res
+        .status(403)
+        .json({ message: 'Incorrect password. Please try again.' });
     }
 
     const accessToken = generateAccessToken(user._id, user.role);
@@ -59,7 +67,7 @@ const loginOwner = async (req, res) => {
   } catch (error) {
     console.error('login error:', error);
   }
-}
+};
 
 const loginStudent = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
@@ -68,16 +76,24 @@ const loginStudent = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found. Please check your email and try again.' });
+      return res
+        .status(401)
+        .json({
+          message: 'User not found. Please check your email and try again.',
+        });
     }
 
-    if(user.role === 'landlord') {
-      return res.status(403).json({ message: 'You do not have permission to access this page.' })
+    if (user.role === 'landlord') {
+      return res
+        .status(403)
+        .json({ message: 'You do not have permission to access this page.' });
     }
 
     const match = await bcrypt.compare(password, user.hash);
     if (!match) {
-      return res.status(403).json({ message: 'Incorrect password. Please try again.' });
+      return res
+        .status(403)
+        .json({ message: 'Incorrect password. Please try again.' });
     }
 
     const accessToken = generateAccessToken(user._id, user.role);
@@ -111,7 +127,7 @@ const loginStudent = async (req, res) => {
   } catch (error) {
     console.error('login error:', error);
   }
-}
+};
 
 const registerUser = async (req, res) => {
   console.log(req.body);
@@ -136,13 +152,13 @@ const registerUser = async (req, res) => {
     const refreshToken = generateRefreshToken(newUser._id, newUser.role);
     newUser.refreshTokens = [refreshToken];
 
-    await newUser.save();
     if (role === 'landlord') {
       const newLandlord = new Landlord({
         userId: newUser._id,
         properties: [],
       });
 
+      await newUser.save();
       await newLandlord.save();
     } else if (role === 'client') {
       const newClient = new Client({
@@ -151,7 +167,10 @@ const registerUser = async (req, res) => {
         school,
       });
 
+      await newUser.save();
       await newClient.save();
+    } else if (!role) {
+      return res.status(400).json({ message: 'Please enter a role' });
     }
 
     res.cookie('refreshToken', refreshToken, {
@@ -196,7 +215,6 @@ const refreshAccessToken = async (req, res) => {
         console.log(result);
       }
     );
-    console.log('error here');
     return res.sendStatus(403);
   }
 
