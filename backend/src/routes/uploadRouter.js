@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/multer');
 const verifyToken = require('../middleware/verifyToken');
-const destroyCloudinaryImages = require('../middleware/destroyCloudinaryImages');
 
 router.use(verifyToken);
-router.use(destroyCloudinaryImages);
 router.post('/', upload.array('files', 4), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {

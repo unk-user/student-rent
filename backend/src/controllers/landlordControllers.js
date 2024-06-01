@@ -73,6 +73,7 @@ const createListing = async (req, res) => {
   }
 };
 
+//deprecated
 const updateListing = async (req, res) => {
   const { listingId } = req.params;
   const { title, description, location, price, rooms, students, images } =

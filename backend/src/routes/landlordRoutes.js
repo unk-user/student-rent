@@ -4,11 +4,11 @@ const {
   getListings,
   createListing,
   getListing,
-  updateListing,
   addStudent,
   deleteStudent,
-  deleteListing,
 } = require('../controllers/landlordControllers');
+const updateListing = require('../controllers/updateListingController');
+const deleteListing = require('../controllers/deleteListingController');
 const router = express.Router();
 
 router.use(verifyToken);
