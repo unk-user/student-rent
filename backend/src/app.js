@@ -27,7 +27,7 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 
 app.use('/api', authRoutes);
-app.use('/api/me', userRouter);
+app.use('/api/user', userRouter);
 app.use('/api/landlord', landlordRouter);
 app.use('/api/student', studentRouter);
 app.use('/api/upload', uploadRouter);
@@ -50,3 +50,5 @@ app.use((error, req, res, next) => {
 app.listen(process.env.PORT, () => {
   console.log(`app started on port: ${process.env.PORT}`);
 });
+
+module.exports = app;

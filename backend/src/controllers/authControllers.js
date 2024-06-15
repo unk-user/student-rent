@@ -13,14 +13,17 @@ const loginOwner = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
+    if (!email || !password) {
       return res
-        .status(401)
-        .json({
-          message: 'User not found. Please check your email and try again.',
-        });
+        .status(400)
+        .json({ message: 'Please provide email and password.' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        message: 'User not found. Please check your email and try again.',
+      });
     }
 
     if (user.role === 'client') {
@@ -28,7 +31,6 @@ const loginOwner = async (req, res) => {
         .status(403)
         .json({ message: 'You do not have permission to access this page.' });
     }
-
     const match = await bcrypt.compare(password, user.hash);
     if (!match) {
       return res
@@ -60,7 +62,7 @@ const loginOwner = async (req, res) => {
     });
     res.status(200).json({
       accessToken,
-      username: user.username,
+      firstName: user.firstName,
       role: user.role,
       userId: user._id,
     });
@@ -73,14 +75,18 @@ const loginStudent = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   const { email, password } = req.body;
   try {
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: 'Please provide email and password.' });
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res
-        .status(401)
-        .json({
-          message: 'User not found. Please check your email and try again.',
-        });
+      return res.status(401).json({
+        message: 'User not found. Please check your email and try again.',
+      });
     }
 
     if (user.role === 'landlord') {
@@ -120,7 +126,7 @@ const loginStudent = async (req, res) => {
     });
     res.status(200).json({
       accessToken,
-      username: user.username,
+      firstName: user.firstName,
       role: user.role,
       userId: user._id,
     });
@@ -131,8 +137,22 @@ const loginStudent = async (req, res) => {
 
 const registerUser = async (req, res) => {
   console.log(req.body);
-  const { username, email, password, role, school, city } = req.body;
+  const { firstName, lastName, email, password, role, school, city } = req.body;
   try {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !role ||
+      !city ||
+      !school
+    ) {
+      return res
+        .status(400)
+        .json({ message: 'Please provide all required fields' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
@@ -142,7 +162,8 @@ const registerUser = async (req, res) => {
 
     const hash = await hashPassword(password);
     const newUser = new User({
-      username,
+      firstName,
+      lastName,
       email,
       hash,
       role,
@@ -180,7 +201,7 @@ const registerUser = async (req, res) => {
     });
     res.status(201).json({
       accessToken,
-      username,
+      firstName,
       role,
       userId: newUser._id,
     });
@@ -218,7 +239,7 @@ const refreshAccessToken = async (req, res) => {
     return res.sendStatus(403);
   }
 
-  const username = user.username;
+  const firstName = user.firstName;
   const role = user.role;
   const userId = user._id;
 
@@ -266,7 +287,7 @@ const refreshAccessToken = async (req, res) => {
         sameSite: 'Lax',
       });
 
-      return res.json({ accessToken, username, role, userId });
+      return res.json({ accessToken, firstName, role, userId });
     }
   );
 };
