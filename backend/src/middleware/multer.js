@@ -29,8 +29,6 @@ const upload = multer({
     fileSize: 2 * 1024 * 1024, // 2MB
   },
   fileFilter: (req, file, cb) => {
-    console.log('File filter called');
-    console.log('File:', file);
     if (file.size > 2 * 1024 * 1024) {
       return cb(new Error('File too large. Maximum file size is 2MB.'));
     }

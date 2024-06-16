@@ -1,6 +1,5 @@
 const Landlord = require('../models/Landlord.model');
 const RentalListing = require('../models/RentalListing.model');
-const Client = require('../models/Client.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
@@ -103,23 +102,6 @@ const updateListing = async (req, res) => {
   }
 };
 
-const addStudent = async (req, res) => {
-  const { clientId } = req.body;
-  const { listingId } = req.params;
-  try {
-    const student = await Client.findById(clientId);
-    const listing = await RentalListing.findById(listingId);
-    if (!student || !listing) return res.sendStatus(404);
-    if (listing?.students.includes(clientId)) return res.sendStatus(400);
-    listing.students.push(clientId);
-    await listing.save();
-    return res.json(listing);
-  } catch (error) {
-    console.error(`error adding student ${clientId}:`, error);
-    return res.sendStatus(500);
-  }
-};
-
 const deleteListing = async (req, res) => {
   const { listingId } = req.params;
   console.log(listingId);
@@ -137,30 +119,11 @@ const deleteListing = async (req, res) => {
   }
 };
 
-const deleteStudent = async (req, res) => {
-  const { listingId } = req.params;
-  const { clientId } = req.body;
-  try {
-    const listing = RentalListing.findById(listingId);
-    if (!listing) return res.sendStatus(404);
-    const updatedStudentList = listing.students.filter(
-      (student) => student !== clientId
-    );
-    listing.students = updatedStudentList;
-    await listing.save();
-    return res.status(204).json({ clientId });
-  } catch (error) {
-    console.error(`error removing student:`, error);
-    return res.json('error removing student from rental listing');
-  }
-};
 
 module.exports = {
   getListings,
   getListing,
   createListing,
   updateListing,
-  addStudent,
-  deleteStudent,
   deleteListing,
 };

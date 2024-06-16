@@ -13,16 +13,15 @@ const rentalListingSchema = new Schema({
     default: 'monthly',
   },
   price: { type: Number, required: true },
-  rooms: { type: Number, required: true },
-  bathrooms: { type: Number },
-  students: [{ type: Schema.Types.ObjectId, ref: 'Client' }],
+  rooms: Number,
+  bathrooms: Number,
   images: [{ public_id: String, url: String }],
   category: {
     type: String,
     enum: ['appartment', 'studio', 'room', 'dorm'],
   },
-  landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true },
-  createdAt: { type: Date, default: Date.now() },
+  landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true }, 
+  createdAt: { type: Date, default: Date.now, immutable: true }, 
 });
 
 rentalListingSchema.post('save', async (rentalListing, next) => {

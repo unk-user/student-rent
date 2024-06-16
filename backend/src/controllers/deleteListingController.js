@@ -28,7 +28,6 @@ const deleteListing = async (req, res) => {
           cloudinary.uploader.destroy(public_id, { invalidate: true })
         )
       );
-      //log cloudinary results
     }
     const deletedListing = await Listing.deleteOne();
 
