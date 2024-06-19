@@ -20,7 +20,7 @@ const rentalListingSchema = new Schema({
     type: String,
     enum: ['appartment', 'studio', 'room', 'dorm'],
   },
-  landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true }, 
+  landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true },
   createdAt: { type: Date, default: Date.now, immutable: true }, 
 });
 

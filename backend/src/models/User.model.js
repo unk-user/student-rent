@@ -5,10 +5,10 @@ const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true, index: true },
   hash: { type: String, required: true },
   role: { type: String, enum: ['client', 'landlord'], default: 'client' },
-  refreshTokens: [String],
+  refreshTokens: [{ type: String, index: true }],
   profilePicture: { url: String, public_id: String },
 });
 
