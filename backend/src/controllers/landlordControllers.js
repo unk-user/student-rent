@@ -3,22 +3,22 @@ const RentalListing = require('../models/RentalListing.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
-  const { limit = 10, page = 1, sortField = 'createdAt', sortDirection = -1 } = req.query;
+  const {
+    limit = 10,
+    page = 1,
+    sortField = 'createdAt',
+    sortDirection = -1,
+  } = req.query;
   const offset = (page - 1) * limit;
   console.log(limit);
 
   try {
-    //TODO: add limit to the query
     const landlord = await Landlord.findOne({ userId }).populate({
       path: 'properties',
       model: 'RentalListing',
       limit: limit,
       skip: offset,
       options: { sort: { [sortField]: parseInt(sortDirection) } },
-      populate: {
-        path: 'students',
-        model: 'Client',
-      },
     });
     if (!landlord) return res.sendStatus(403);
     const totalProperties = await RentalListing.countDocuments({
@@ -39,15 +39,16 @@ const getListing = async (req, res) => {
   const userId = req.userId;
   const { listingId } = req.params;
   try {
-    const rentalListing = await RentalListing.findById(listingId).populate(
-      'students'
-    );
+    const rentalListing = await RentalListing.findById(listingId);
     const landlord = await Landlord.findOne({ userId });
     const landlordId = landlord._id;
+
     if (!rentalListing || !landlord)
       return res.status(404).json({ userId, listingId });
+
     if (!rentalListing.landlordId.equals(landlordId))
       return res.sendStatus(403);
+
     return res.json({ rentalListing });
   } catch (error) {
     console.error('error fetching listing:', error);
@@ -75,8 +76,7 @@ const createListing = async (req, res) => {
 //deprecated
 const updateListing = async (req, res) => {
   const { listingId } = req.params;
-  const { title, description, location, price, rooms, students, images } =
-    req.body;
+  const { title, description, location, price, rooms, images } = req.body;
 
   try {
     const rentalListing = await RentalListing.findByIdAndUpdate(
@@ -87,7 +87,6 @@ const updateListing = async (req, res) => {
         location,
         price,
         rooms,
-        students,
         images,
       },
       { new: true, runValidators: true }
@@ -118,7 +117,6 @@ const deleteListing = async (req, res) => {
     return res.json('error deleting property');
   }
 };
-
 
 module.exports = {
   getListings,
