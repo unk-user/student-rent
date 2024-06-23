@@ -1,38 +1,56 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const { ObjectId } = Schema.Types;
 const Landlord = require('./Landlord.model');
-const Schema = mongoose.Schema;
 
-const rentalListingSchema = new Schema({
+const detailsSchema = new Schema({
   title: { type: String, required: true },
-  description: { type: String, required: true },
-  address: { type: String, required: true },
+  About: { type: String, required: true },
+  location: { type: String, required: true, index: 1 },
   city: { type: String, required: true },
   period: {
     type: String,
-    enum: ['monthly', 'yearly', 'semester'],
-    default: 'monthly',
+    enum: ['academic year', 'semester', 'monthly', 'weekly', 'daily', 'any'],
+    default: 'any',
+    index: 1,
   },
-  price: { type: Number, required: true },
+  price: { type: Number, required: true, index: 1 },
   rooms: Number,
   bathrooms: Number,
-  images: [{ public_id: String, url: String }],
+  area: Number,
   category: {
     type: String,
-    enum: ['appartment', 'studio', 'room', 'dorm'],
+    enum: ['appartment', 'studio', 'room', 'house', 'dorm'],
   },
-  landlordId: { type: Schema.Types.ObjectId, ref: 'Landlord', required: true },
-  createdAt: { type: Date, default: Date.now, immutable: true }, 
+  images: [{ public_id: String, url: String }],
 });
 
-rentalListingSchema.post('save', async (rentalListing, next) => {
-  try {
-    const landlord = await Landlord.findById(rentalListing.landlordId);
-    landlord.properties.push(rentalListing._id);
-    await landlord.save();
-    next();
-  } catch (error) {
-    next(error);
-  }
+const rentalListingSchema = new Schema({
+  landlordId: { type: ObjectId, ref: 'Landlord', required: true },
+  details: { type: detailsSchema, required: true },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active',
+  },
+  reviewAvg: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 },
+  reviews: [{ type: ObjectId, ref: 'Review' }],
+  interactions: {
+    views: [{ type: ObjectId, ref: 'Client' }],
+    likes: [{ type: ObjectId, ref: 'Client' }],
+  },
+  createdAt: { type: Date, default: Date.now, immutable: true },
+});
+
+rentalListingSchema.post('save', async function onSave(rentalListing) {
+  const { landlordId } = rentalListing;
+  const landlord = await Landlord.findByIdAndUpdate(
+    landlordId,
+    { $push: { properties: rentalListing._id } },
+    { new: true }
+  );
+  if (!landlord) throw new Error('Landlord not found');
 });
 
 module.exports = mongoose.model('RentalListing', rentalListingSchema);
