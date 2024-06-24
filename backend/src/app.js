@@ -5,8 +5,8 @@ const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const userRouter = require('./routes/userRouter');
-const landlordRouter = require('./routes/landlordRoutes');
-const studentRouter = require('./routes/studentRoutes');
+const landlordRouter = require('./routes/ownerRoutes');
+const clientRouter = require('./routes/clientRoutes');
 const uploadRouter = require('./routes/uploadRouter');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -23,13 +23,14 @@ app.use(
     origin: ['http://localhost:8000', 'http://localhost:5173'],
   })
 );
+
 app.use(morgan('dev'));
 app.use(cookieParser());
 
 app.use('/api', authRoutes);
 app.use('/api/user', userRouter);
 app.use('/api/landlord', landlordRouter);
-app.use('/api/student', studentRouter);
+app.use('/api/client', clientRouter);
 app.use('/api/upload', uploadRouter);
 
 app.use((req, res, next) => {
