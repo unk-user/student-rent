@@ -1,7 +1,6 @@
 const express = require('express');
 const verifyToken = require('../middleware/verifyToken');
 const User = require('../models/User.model');
-const Client = require('../models/Client.model');
 const cloudinary = require('cloudinary').v2;
 const upload = require('../middleware/multer');
 const router = express.Router();
@@ -21,17 +20,6 @@ router.get('/', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) {
       return res.sendStatus(403);
-    }
-    if (role === 'client') {
-      const client = await Client.find({ userId: userId });
-      const { city, school } = client;
-
-      return res.status(200).json({
-        user,
-        role,
-        city,
-        school,
-      });
     }
 
     return res.status(200).json({
