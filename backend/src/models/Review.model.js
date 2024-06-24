@@ -18,16 +18,16 @@ const reviewSchema = new Schema({
 reviewSchema.pre('save', async (review, next) => {
   try {
     const rentalListing = await RentalListing.findById(review.rentalListing);
-    rentalListing.reviews.push(review._id);
-    rentalListing.reviewAvg =
-      rentalListing.reviewCount > 0
-        ? (rentalListing.reviewAvg * rentalListing.reviewCount +
-            review.rating) /
-          (rentalListing.reviewCount + 1)
+    const reviewCount = rentalListing.interactionSummary.reviewCount;
+    const reviewAvg = rentalListing.interactionSummary.reviewAvg;
+    const newAvg =
+      reviewCount > 0
+        ? (reviewAvg * reviewCount + review.rating) / (reviewCount + 1)
         : review.rating;
-    rentalListing.reviewCount++;
+    rentalListing.interactionSummary.reviewAvg = newAvg;
+    rentalListing.interactionSummary.reviewCount++;
 
-    console.log(rentalListing.reviewAvg);
+    console.log(rentalListing.interactionSummary.reviewAvg);
     await rentalListing.save();
     next();
   } catch (error) {

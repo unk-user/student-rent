@@ -14,8 +14,7 @@ const clientSchema = new Schema({
     city: String,
     school: String,
     budget: Number,
-  },
-  likes: [{ type: ObjectId, ref: 'RentalListing' }],
+  }
 });
 
 // create index on budget field

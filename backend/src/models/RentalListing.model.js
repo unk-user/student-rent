@@ -21,6 +21,7 @@ const detailsSchema = new Schema({
   category: {
     type: String,
     enum: ['appartment', 'studio', 'room', 'house', 'dorm'],
+    required: true,
   },
   images: [{ public_id: String, url: String }],
 });
@@ -33,12 +34,11 @@ const rentalListingSchema = new Schema({
     enum: ['active', 'inactive'],
     default: 'active',
   },
-  reviewAvg: { type: Number, default: 0 },
-  reviewCount: { type: Number, default: 0 },
-  reviews: [{ type: ObjectId, ref: 'Review' }],
-  interactions: {
-    views: [{ type: ObjectId, ref: 'Client' }],
-    likes: [{ type: ObjectId, ref: 'Client' }],
+  interactionSummary: {
+    viewCount: { type: Number, default: 0 },
+    likeCount: { type: Number, default: 0 },
+    reviewAvg: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
   },
   createdAt: { type: Date, default: Date.now, immutable: true },
 });
