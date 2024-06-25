@@ -13,7 +13,7 @@ const rentalListingViewSchema = new Schema({
   userId: { type: ObjectId, ref: 'User', required: true, index: true },
 });
 
-rentalListingViewSchema.pre(
+rentalListingViewSchema.post(
   'save',
   async function onSave(rentalListingLike, next) {
     const { rentalListingId } = rentalListingLike;

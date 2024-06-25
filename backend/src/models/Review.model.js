@@ -4,20 +4,21 @@ const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
 const reviewSchema = new Schema({
-  client: { type: ObjectId, ref: 'Client', required: true },
-  rentalListing: {
+  userId: { type: ObjectId, ref: 'User', required: true },
+  rentalListingId: {
     type: Schema.Types.ObjectId,
     ref: 'RentalListing',
     required: true,
+    index: true,
   },
   rating: { type: Number, required: true },
   comment: String,
   createdAt: { type: Date, default: Date.now, immutable: true },
 });
 
-reviewSchema.pre('save', async (review, next) => {
+reviewSchema.post('save', async (review, next) => {
   try {
-    const rentalListing = await RentalListing.findById(review.rentalListing);
+    const rentalListing = await RentalListing.findById(review.rentalListingId);
     const reviewCount = rentalListing.interactionSummary.reviewCount;
     const reviewAvg = rentalListing.interactionSummary.reviewAvg;
     const newAvg =

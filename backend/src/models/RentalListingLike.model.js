@@ -10,10 +10,12 @@ const rentalListingLikeSchema = new Schema({
     required: true,
     index: true,
   },
-  clientId: { type: ObjectId, ref: 'Client', required: true, index: true },
+  userId: { type: ObjectId, ref: 'User', required: true, index: true },
 });
 
-rentalListingLikeSchema.pre(
+rentalListingLikeSchema.index({ rentalListingId: 1, userId: 1 });
+
+rentalListingLikeSchema.post(
   'save',
   async function onSave(rentalListingLike, next) {
     const { rentalListingId } = rentalListingLike;

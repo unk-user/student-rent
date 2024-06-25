@@ -5,7 +5,7 @@ const Landlord = require('./Landlord.model');
 
 const detailsSchema = new Schema({
   title: { type: String, required: true },
-  About: { type: String, required: true },
+  about: { type: String, required: true },
   location: { type: String, required: true, index: 1 },
   city: { type: String, required: true },
   period: {
@@ -54,3 +54,4 @@ rentalListingSchema.post('save', async function onSave(rentalListing) {
 });
 
 module.exports = mongoose.model('RentalListing', rentalListingSchema);
+

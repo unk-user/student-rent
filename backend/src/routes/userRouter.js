@@ -14,34 +14,19 @@ cloudinary.config({
 router.use(verifyToken);
 
 router.get('/', async (req, res) => {
-  const userId = req.userId;
-  const role = req.role;
   try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.sendStatus(403);
-    }
-
-    return res.status(200).json({
-      user,
-      role,
-    });
+    const user = req.user;
+    return res.status(200).json(user);
   } catch (error) {
-    console.error(error);
-    return res.sendStatus(500);
+    console.log(error);
   }
 });
 
 router.patch('/edit', upload.single('file'), async (req, res) => {
-  const userId = req.userId;
+  const user = req.user;
   const { username, firstName, lastName, deletePreviousImage } = req.body;
   console.log(req.body);
   try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.sendStatus(403);
-    }
-
     if (deletePreviousImage == 'true' && user.profilePicture.public_id) {
       await cloudinary.uploader.destroy(user.profilePicture.public_id, {
         invalidate: true,
@@ -54,7 +39,6 @@ router.patch('/edit', upload.single('file'), async (req, res) => {
         url: req.file.path,
         public_id: req.file.filename,
       };
-      console.log('or here');
       user.profilePicture = profilePicture;
     }
 
