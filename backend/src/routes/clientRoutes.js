@@ -2,7 +2,10 @@ const express = require('express');
 const verifyToken = require('../middleware/verifyToken');
 const {
   getListings,
+  getListing,
   updatePreferences,
+  addLike,
+  addReview,
 } = require('../controllers/clientControllers/clientControllers');
 const {
   loginClient,
@@ -20,7 +23,12 @@ router.use((req, res, next) => {
   }
   next();
 });
-router.patch('/profile/preferences', updatePreferences);
+
 router.get('/listings', getListings);
+router.get('/listings/:listingId', getListing);
+router.post('/listings/:listingId/like', addLike);
+router.post('/listings/:listingId/review', addReview);
+
+router.patch('/profile/preferences', updatePreferences);
 
 module.exports = router;
