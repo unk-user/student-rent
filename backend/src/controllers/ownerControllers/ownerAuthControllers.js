@@ -71,10 +71,9 @@ const loginOwner = async (req, res) => {
 
 const registerOwner = async (req, res) => {
   console.log(req.body);
-  const { username, firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
   try {
     const requiredFields = [
-      'username',
       'firstName',
       'lastName',
       'email',
@@ -100,7 +99,6 @@ const registerOwner = async (req, res) => {
 
     const hash = await hashPassword(password);
     const newUser = new User({
-      username,
       firstName,
       lastName,
       email,

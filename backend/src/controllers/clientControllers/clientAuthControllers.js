@@ -74,7 +74,6 @@ const loginClient = async (req, res) => {
 const registerClient = async (req, res) => {
   console.log(req.body);
   const {
-    username,
     firstName,
     lastName,
     email,
@@ -85,7 +84,6 @@ const registerClient = async (req, res) => {
   } = req.body;
   try {
     const requiredFields = [
-      'username',
       'firstName',
       'lastName',
       'email',
@@ -111,7 +109,6 @@ const registerClient = async (req, res) => {
 
     const hash = await hashPassword(password);
     const newUser = new User({
-      username,
       firstName,
       lastName,
       email,
