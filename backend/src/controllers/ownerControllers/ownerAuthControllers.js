@@ -52,6 +52,8 @@ const loginOwner = async (req, res) => {
     const result = await user.save();
     console.log(result);
 
+    const { refreshTokens, hash, ...userWithoutRefreshTokens } = user.toObject();
+
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: true,
@@ -60,9 +62,7 @@ const loginOwner = async (req, res) => {
     });
     res.status(200).json({
       accessToken,
-      firstName: user.firstName,
-      role: user.role,
-      userId: user._id,
+      user: userWithoutRefreshTokens,
     });
   } catch (error) {
     console.error('login error:', error);
@@ -73,12 +73,7 @@ const registerOwner = async (req, res) => {
   console.log(req.body);
   const { firstName, lastName, email, password } = req.body;
   try {
-    const requiredFields = [
-      'firstName',
-      'lastName',
-      'email',
-      'password',
-    ];
+    const requiredFields = ['firstName', 'lastName', 'email', 'password'];
 
     const missingFields = requiredFields.filter(
       (field) => !(field in req.body)

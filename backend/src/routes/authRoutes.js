@@ -5,6 +5,7 @@ const {
   logoutUser,
 } = require('../controllers/authControllers');
 
-router.post('/refresh', refreshAccessToken), router.post('/logout', logoutUser);
+router.post('/refresh', refreshAccessToken);
+router.post('/logout', logoutUser);
 
 module.exports = router;

@@ -3,11 +3,8 @@ const jwt = require('jsonwebtoken');
 const {
   generateAccessToken,
   generateRefreshToken,
-  hashPassword,
 } = require('../helpers/authHelpers');
 const User = require('../models/User.model');
-const Client = require('../models/Client.model');
-const Landlord = require('../models/Landlord.model');
 
 const refreshAccessToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
@@ -36,10 +33,6 @@ const refreshAccessToken = async (req, res) => {
     );
     return res.sendStatus(403);
   }
-
-  const firstName = user.firstName;
-  const role = user.role;
-  const userId = user._id;
 
   jwt.verify(
     refreshToken,
@@ -85,7 +78,10 @@ const refreshAccessToken = async (req, res) => {
         sameSite: 'Lax',
       });
 
-      return res.json({ accessToken, firstName, role, userId });
+      const { hash, refreshTokens, ...filteredUser } =
+        updatedUser.toObject();
+
+      return res.json({ accessToken, user: filteredUser });
     }
   );
 };
