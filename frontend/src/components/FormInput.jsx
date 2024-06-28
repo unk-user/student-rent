@@ -10,10 +10,11 @@ function FormInput({
   children,
   required,
   withButton,
+  containerClassName,
   ...props
 }) {
   return (
-    <div className="mt-4">
+    <div className={containerClassName}>
       <p>{label}</p>
       <div className="relative flex w-full mt-1">
         <Input
@@ -34,7 +35,7 @@ function FormInput({
           {...props}
         />
         {withButton ? (
-          <div className="!absolute right-2 top-0 h-full flex items-center ">
+          <div className="!absolute right-1 top-0 h-full flex items-center ">
             {children}
           </div>
         ) : (
@@ -54,6 +55,7 @@ FormInput.propTypes = {
   children: propTypes.node,
   required: propTypes.bool,
   withButton: propTypes.bool,
+  containerClassName: propTypes.string,
 };
 
 export default FormInput;

@@ -10,14 +10,15 @@ function FormSelect({
   placeholder,
   required,
   options,
+  containerClassName,
   ...props
 }) {
   return (
-    <div className="mt-4">
+    <div className={containerClassName}>
       <p>{label}</p>
       <div className="mt-1">
         <Select
-          className="!border-2 !border-t-blue-gray-200 focus:!border-gray-900 placeholder:text-gray-500"
+          className="!border-2 !border-t-blue-gray-200 focus:!border-gray-900 aria-expanded:!border-gray-900 placeholder:text-gray-500"
           labelProps={{
             className: 'hidden',
           }}
@@ -46,6 +47,7 @@ FormSelect.propTypes = {
   placeholder: propTypes.string,
   required: propTypes.bool,
   options: propTypes.arrayOf(propTypes.string),
+  containerClassName: propTypes.string,
 };
 
 export default FormSelect;
