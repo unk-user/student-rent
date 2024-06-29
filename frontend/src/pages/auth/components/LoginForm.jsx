@@ -59,7 +59,7 @@ function LoginPage() {
           color="red"
           variant="ghost"
         >
-          {mutation.error.response.data.message}
+          {mutation?.error?.response?.data.message}
         </Alert>
       )}
       <h2 className="text-2xl">Sign in</h2>
