@@ -31,7 +31,7 @@ function AuthProvider({ children }) {
     });
 
     return () => {
-      axiosInstance.interceptors.response.eject(authInterceptor);
+      axiosInstance.interceptors.request.eject(authInterceptor);
     };
   }, [auth?.accessToken]);
 
@@ -41,10 +41,7 @@ function AuthProvider({ children }) {
       async (error) => {
         const originalRequest = error.config;
 
-        if (
-          error.response.status === 403 &&
-          error.response.data.message === 'Unauthorized'
-        ) {
+        if (error.response.status === 403 && !originalRequest._retry) {
           try {
             const response = await axiosInstance.post('/refresh');
 
@@ -63,7 +60,7 @@ function AuthProvider({ children }) {
       }
     );
     return () => {
-      axiosInstance.interceptors.request.eject(refreshInterceptor);
+      axiosInstance.interceptors.response.eject(refreshInterceptor);
     };
   }, []);
 
