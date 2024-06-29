@@ -8,7 +8,7 @@ import {
   MenuItem,
   MenuList,
 } from '@material-tailwind/react';
-import { Message02Icon, Notification01Icon } from 'hugeicons-react';
+import { Logout02Icon, Message02Icon, Notification01Icon } from 'hugeicons-react';
 import { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -56,7 +56,7 @@ function Header() {
             <Message02Icon size={28} />
           </NavLink>
           <Notification01Icon size={28} />
-          <Menu placement='bottom-end' offset={13}>
+          <Menu placement="bottom-end" offset={13}>
             <MenuHandler>
               <Button
                 variant="text"
@@ -77,8 +77,11 @@ function Header() {
                 </Badge>
               </Button>
             </MenuHandler>
-            <MenuList className='rounded-none border-2 border-gray-400 border-t-0 px-2 py-2'>
-              <MenuItem className='rounded-none px-2'>Hey</MenuItem>
+            <MenuList className="rounded-none border-0 p-1">
+              <MenuItem className="rounded-[6px] flex items-center gap-2 px-2">
+                <Logout02Icon />
+                Logout
+              </MenuItem>
             </MenuList>
           </Menu>
         </div>
