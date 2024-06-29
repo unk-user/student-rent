@@ -10,6 +10,7 @@ import RegisterForm from './pages/auth/components/RegisterForm';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthProvider';
 import Layout from './pages/Tenant/Layout';
+import FindRentPage from './pages/FindRent/FindRentPage';
 
 function App() {
   axios.defaults.withCredentials = true;
@@ -41,13 +42,14 @@ function App() {
       children: [
         {
           path: 'rent',
+          element: <FindRentPage />,
         },
         {
           path: 'roommates',
         },
         {
-          path: 'messages'
-        }
+          path: 'messages',
+        },
       ],
     },
   ]);
