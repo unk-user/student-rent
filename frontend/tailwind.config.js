@@ -35,7 +35,13 @@ export default withMT({
       'dark-blue': '#1A2839',
     },
     extend: {
-      screen: {},
+      screens: {
+        'max-xl': { max: '1400px' },
+        'max-lg': { max: '1200px' },
+        'max-md': { max: '992px' },
+        'max-sm': { max: '668px' },
+        'max-xs': { max: '576px' },
+      },
     },
   },
   plugins: [],
