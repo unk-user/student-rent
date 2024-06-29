@@ -14,9 +14,10 @@ const getListings = async (req, res) => {
     maxPrice,
     location,
     rentPeriod,
+    category,
   } = req.query;
   try {
-    const skip = (page - 1) * limit;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const currentClient = await Client.findOne({ userId });
 
@@ -33,15 +34,18 @@ const getListings = async (req, res) => {
     let query = [];
 
     if (minPrice || maxPrice || location || rentPeriod) {
-      const match = {
-        'details.price': {},
-        'details.location': {},
-        'details.period': {},
-      };
-      if (minPrice) match['details.price'].$gte = minPrice;
-      if (maxPrice) match['details.price'].$lte = maxPrice;
+      const match = {};
+      if (minPrice) match['details.price'] = { $gte: parseInt(minPrice) };
+      if (maxPrice)
+        match['details.price'] = {
+          ...match['details.price'],
+          $lte: parseInt(maxPrice),
+        };
       if (location) match['details.location'] = location;
       if (rentPeriod) match['details.period'] = rentPeriod;
+      if (category) match['details.category'] = category;
+
+      console.log(match);
 
       query.push({
         $match: match,
@@ -150,8 +154,8 @@ const getListings = async (req, res) => {
 
     res.json({
       listings,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
       totalListigs: total,
     });
   } catch (error) {

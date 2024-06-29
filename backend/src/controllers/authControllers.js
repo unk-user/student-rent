@@ -55,13 +55,10 @@ const refreshAccessToken = async (req, res) => {
         decoded.role
       );
 
-      const userVersion = user.__v;
-
       const updatedUser = await User.findOneAndUpdate(
-        { _id: user._id, __v: userVersion },
+        { _id: user._id,  },
         {
           $set: { refreshTokens: [...newRefreshTokenArray, newRefreshToken] },
-          $inc: { __v: 1 },
         },
         { new: true }
       );
@@ -70,7 +67,6 @@ const refreshAccessToken = async (req, res) => {
         console.log('Conflict detected during refresh token update');
         return res.sendStatus(409); // Conflict error
       }
-      await updatedUser.save();
 
       res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
@@ -78,7 +74,7 @@ const refreshAccessToken = async (req, res) => {
         sameSite: 'Lax',
       });
 
-      const { hash, refreshTokens, ...filteredUser } =
+      const { password, refreshTokens, ...filteredUser } =
         updatedUser.toObject();
 
       return res.json({ accessToken, user: filteredUser });

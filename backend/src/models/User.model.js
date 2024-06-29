@@ -9,6 +9,7 @@ const userSchema = new Schema({
   role: { type: String, enum: ['client', 'landlord'], default: 'client' },
   refreshTokens: [{ type: String, index: true }],
   profilePicture: { url: String, public_id: String },
+  __v: { type: Number, select: false },
 });
 
 module.exports = mongoose.model('User', userSchema);
