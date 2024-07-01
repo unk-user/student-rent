@@ -5,7 +5,7 @@ import axiosInstance from '@/utils/axiosInstance';
 export const AuthContext = createContext({});
 
 function AuthProvider({ children }) {
-  const [auth, setAuth] = useState(false);
+  const [auth, setAuth] = useState({ accessToken: undefined });
 
   useEffect(() => {
     const initialRefresh = async () => {
@@ -14,7 +14,7 @@ function AuthProvider({ children }) {
         const newAuth = response.data;
         setAuth(newAuth);
       } catch {
-        setAuth(null);
+        setAuth({ accessToken: null });
       }
     };
 
@@ -52,7 +52,7 @@ function AuthProvider({ children }) {
 
             return axiosInstance(originalRequest);
           } catch {
-            setAuth(null);
+            setAuth({ accessToken: null });
           }
         }
 

@@ -18,7 +18,7 @@ function FilterSelect({ children, label, value, onChange, required }) {
       }}
       menuProps={{
         className:
-          'rounded-none mt-[14px] !w-[calc(100%+2rem)] max-sm:!w-calc(100%+1rem) !-translate-x-[1rem] !text-xs max-md:!-mt-4',
+          'rounded-none mt-[14px] !w-[calc(100%+2rem)] max-sm:!w-full !-translate-x-[1rem] max-sm:!-translate-x-0 !text-xs max-md:!-mt-4 pt-2',
       }}
     >
       {children}

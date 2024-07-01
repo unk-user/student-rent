@@ -40,7 +40,6 @@ function LoginPage() {
       setAuth(data);
       navigate('/tenant/rent');
     },
-    onError: () => {},
   });
 
   const onSubmit = async (e) => {

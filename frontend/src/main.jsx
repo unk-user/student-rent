@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 const theme = {
   button: {
     defaultProps: {
-      className: 'font-normal !justify-center',
+      className: 'font-normal !justify-center !normal-case',
     },
   },
   checkbox: {

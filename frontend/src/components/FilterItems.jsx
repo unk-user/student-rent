@@ -25,9 +25,9 @@ function FilterItems({
   setRentPeriod,
 }) {
   const changePrice = (e, type) => {
-    if (type === 'from' && e.target.value <= priceRange.to) {
+    if (type === 'from') {
       setPriceRange((prev) => ({ ...prev, from: e.target.value }));
-    } else if (type === 'to' && e.target.value >= priceRange.from) {
+    } else if (type === 'to') {
       setPriceRange((prev) => ({ ...prev, to: e.target.value }));
     }
   };

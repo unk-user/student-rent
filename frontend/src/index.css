@@ -11,3 +11,11 @@
     @apply h-screen flex flex-col
   }
 }
+
+.small-rating svg {
+  @apply w-5 h-5
+}
+
+.large-rating svg {
+  @apply w-8 h-8
+}

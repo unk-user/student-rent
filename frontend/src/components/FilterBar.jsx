@@ -14,6 +14,7 @@ function FilterBar({ filters, setFilters }) {
   const [rentPeriod, setRentPeriod] = useState(filters.rentPeriod);
   const [openDrawer, setOpenDrawer] = useState(false);
 
+
   const handleClick = () => {
     setFilters({
       minPrice: parseInt(priceRange.from),
@@ -41,7 +42,7 @@ function FilterBar({ filters, setFilters }) {
           onClick={handleClick}
           className="text-sm p-[10px] bg-dark-blue rounded-[6px] shadow-none hover:shadow-none focus:opacity-100 ml-auto"
         >
-          Apply Filters
+          Apply filters
         </Button>
       </div>
       <div className="hidden max-md:block">
@@ -76,7 +77,7 @@ function FilterBar({ filters, setFilters }) {
               onClick={handleClick}
               className="text-sm p-[10px] bg-dark-blue rounded-[6px] shadow-none hover:shadow-none focus:opacity-100 ml-auto"
             >
-              Apply Filters
+              Apply filters
             </Button>
           </div>
         </Drawer>
