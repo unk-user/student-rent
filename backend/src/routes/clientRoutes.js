@@ -6,6 +6,7 @@ const {
   updatePreferences,
   addLike,
   addReview,
+  removeLike,
 } = require('../controllers/clientControllers/clientControllers');
 const {
   loginClient,
@@ -27,6 +28,7 @@ router.use((req, res, next) => {
 router.get('/listings', getListings);
 router.get('/listings/:listingId', getListing);
 router.post('/listings/:listingId/like', addLike);
+router.delete('/listings/:listingId/like', removeLike);
 router.post('/listings/:listingId/review', addReview);
 
 router.patch('/profile/preferences', updatePreferences);
