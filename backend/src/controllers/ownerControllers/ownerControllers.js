@@ -9,6 +9,7 @@ const createListing = async (req, res) => {
     const landlord = await Landlord.findOne({ userId });
     const newListing = new RentalListing({
       landlordId: landlord._id,
+      userId,
       details,
     });
 

@@ -3,6 +3,7 @@ const Client = require('../../models/Client.model');
 const RentalListingLike = require('../../models/RentalListingLike.model');
 const RentalListingView = require('../../models/RentalListingView.model');
 const Review = require('../../models/Review.model');
+const mongoose = require('mongoose');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
@@ -167,8 +168,96 @@ const getListings = async (req, res) => {
 const getListing = async (req, res) => {
   const { listingId } = req.params;
   try {
-    const listing = await RentalListing.findById(listingId);
-    if (!listing) {
+    const listing = await RentalListing.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(listingId) },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'landlord',
+        },
+      },
+      { $unwind: '$landlord' },
+      {
+        $lookup: {
+          from: 'reviews',
+          let: { listingId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$rentalListingId', '$$listingId'] },
+              },
+            },
+            {
+              $limit: 4,
+            },
+            { $sort: { createdAt: -1 } },
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'userId',
+                foreignField: '_id',
+                as: 'userId',
+              },
+            },
+            {
+              $unwind: '$userId',
+            },
+          ],
+          as: 'reviews',
+        },
+      },
+      {
+        $lookup: {
+          from: 'rentalListingLikes',
+          let: { listingId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$rentalListingId', '$$listingId'] },
+                userId: new mongoose.Types.ObjectId(req.userId),
+              },
+            },
+            { $count: 'count' },
+          ],
+          as: 'liked',
+        },
+      },
+      {
+        $lookup: {
+          from: 'reviews',
+          let: { listingId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$rentalListingId', '$$listingId'] },
+                userId: new mongoose.Types.ObjectId(req.userId),
+              },
+            },
+            { $count: 'count' },
+          ],
+          as: 'reviewed',
+        },
+      },
+      {
+        $addFields: {
+          liked: { $ifNull: [{ $arrayElemAt: ['$liked.count', 0] }, 0] },
+          reviewed: { $ifNull: [{ $arrayElemAt: ['$reviewed.count', 0] }, 0] },
+        },
+      },
+      {
+        $project: {
+          'landlord.refreshTokens': 0,
+          'landlord.hash': 0,
+          'landlord.__v': 0,
+        },
+      },
+    ]);
+
+    if (listing.length === 0) {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
@@ -180,9 +269,12 @@ const getListing = async (req, res) => {
       await view.save();
       res.cookie(`viewed_${listingId}`, true, { maxAge: 24 * 60 * 60 * 1000 });
     }
-    const reviews = await Review.find({ rentalListingId: listingId });
 
-    res.json({ listing, reviews });
+    res.json({
+      listing: listing[0],
+      reviews: listing.reviews,
+      landlord: listing.landlord,
+    });
   } catch (error) {
     console.error('Error fetching listing', error);
     res.json({ message: 'Error fetching listing', error: error.message });
@@ -211,6 +303,19 @@ const addLike = async (req, res) => {
     res
       .status(500)
       .json({ message: 'Error adding like', error: error.message });
+  }
+};
+const removeLike = async (req, res) => {
+  const { listingId } = req.params;
+  const userId = req.userId;
+  try {
+    await RentalListingLike.deleteOne({ rentalListingId: listingId, userId });
+    res.json({ message: 'Like removed successfully' });
+  } catch (error) {
+    console.error('Error removing like', error);
+    res
+      .status(500)
+      .json({ message: 'Error removing like', error: error.message });
   }
 };
 
@@ -268,5 +373,6 @@ module.exports = {
   getListing,
   updatePreferences,
   addLike,
+  removeLike,
   addReview,
 };

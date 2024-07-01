@@ -28,6 +28,7 @@ const detailsSchema = new Schema({
 
 const rentalListingSchema = new Schema({
   landlordId: { type: ObjectId, ref: 'Landlord', required: true },
+  userId: { type: ObjectId, ref: 'User', required: true },
   details: { type: detailsSchema, required: true },
   status: {
     type: String,
@@ -54,4 +55,3 @@ rentalListingSchema.post('save', async function onSave(rentalListing) {
 });
 
 module.exports = mongoose.model('RentalListing', rentalListingSchema);
-
