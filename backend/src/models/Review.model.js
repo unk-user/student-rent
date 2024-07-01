@@ -25,7 +25,7 @@ reviewSchema.post('save', async (review, next) => {
       reviewCount > 0
         ? (reviewAvg * reviewCount + review.rating) / (reviewCount + 1)
         : review.rating;
-    rentalListing.interactionSummary.reviewAvg = newAvg;
+    rentalListing.interactionSummary.reviewAvg = Number(newAvg.toFixed(2));
     rentalListing.interactionSummary.reviewCount++;
 
     console.log(rentalListing.interactionSummary.reviewAvg);
