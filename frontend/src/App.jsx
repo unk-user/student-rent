@@ -11,6 +11,7 @@ import { useContext } from 'react';
 import { AuthContext } from './context/AuthProvider';
 import Layout from './pages/Tenant/Layout';
 import FindRentPage from './pages/FindRent/FindRentPage';
+import PropertyPage from './pages/PropertyPage/PropertyPage';
 
 function App() {
   axios.defaults.withCredentials = true;
@@ -34,15 +35,20 @@ function App() {
     },
     {
       path: '/tenant',
-      element: auth?.accessToken ? (
-        <Layout />
-      ) : (
-        <Navigate to="/auth/signin" replace={true} />
-      ),
+      element:
+        auth?.accessToken !== null ? (
+          <Layout />
+        ) : (
+          <Navigate to="/auth/signin" replace={true} />
+        ),
       children: [
         {
           path: 'rent',
           element: <FindRentPage />,
+        },
+        {
+          path: 'rent/:listingId',
+          element: <PropertyPage />,
         },
         {
           path: 'roommates',
