@@ -17,7 +17,6 @@ const clientSchema = new Schema({
   }
 });
 
-// create index on budget field
 clientSchema.index({ userId: 1, 'preferences.budget': 1 });
 
 module.exports = mongoose.model('Client', clientSchema);

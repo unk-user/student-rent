@@ -54,7 +54,8 @@ const loginClient = async (req, res) => {
     const result = await user.save();
     console.log(result);
 
-    const { refreshTokens, hash, ...userWithoutRefreshTokens } = user.toObject();
+    const { refreshTokens, hash, ...userWithoutRefreshTokens } =
+      user.toObject();
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
@@ -107,6 +108,14 @@ const registerClient = async (req, res) => {
     const accessToken = generateAccessToken(newUser._id, newUser.role);
     const refreshToken = generateRefreshToken(newUser._id, newUser.role);
     newUser.refreshTokens = [refreshToken];
+
+    if (req.file) {
+      const image = {
+        public_id: req.file.filename,
+        url: req.file.path,
+      };
+      newUser.profilePicture = image;
+    }
 
     const newClient = new Client({
       userId: newUser._id,

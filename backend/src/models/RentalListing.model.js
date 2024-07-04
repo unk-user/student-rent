@@ -41,6 +41,7 @@ const rentalListingSchema = new Schema({
     reviewAvg: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
   },
+  requests: [{ type: ObjectId, ref: 'Request' }],
   createdAt: { type: Date, default: Date.now, immutable: true },
 });
 

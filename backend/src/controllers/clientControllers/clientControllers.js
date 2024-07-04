@@ -36,6 +36,7 @@ const getListings = async (req, res) => {
 
     if (minPrice || maxPrice || location || rentPeriod) {
       const match = {};
+
       if (minPrice) match['details.price'] = { $gte: parseInt(minPrice) };
       if (maxPrice)
         match['details.price'] = {
@@ -261,13 +262,18 @@ const getListing = async (req, res) => {
       return res.status(404).json({ message: 'Listing not found' });
     }
 
-    if (!req.cookies[`viewed_${listingId}`]) {
+    const viewedCookie = req.cookies[`viewed_${listing[0]._id}`];
+    if (!viewedCookie) {
       const view = new RentalListingView({
-        rentalListingId: listingId,
+        rentalListingId: listing[0]._id,
         userId: req.userId,
       });
+
       await view.save();
-      res.cookie(`viewed_${listingId}`, true, { maxAge: 24 * 60 * 60 * 1000 });
+      res.cookie(`viewed_${listing[0]._id}`, true, {
+        expires: new Date(Date.now() + 1000 * 60 * 5),
+        httpOnly: true,
+      });
     }
 
     res.json({
@@ -343,6 +349,50 @@ const addReview = async (req, res) => {
   }
 };
 
+const addRequest = async (req, res) => {
+  const { listingId } = req.params;
+  const userId = req.userId;
+  const { details } = req.body;
+  try {
+    const client = await Client.findOne({ userId });
+    const existingRequest = await Request.findOne({
+      userId,
+      listingId,
+    });
+    if (existingRequest) {
+      return res
+        .status(400)
+        .json({ message: 'You have already sent a request to this listing' });
+    }
+    const request = new Request({
+      userId,
+      listingId,
+      details,
+    });
+    await request.save();
+    res.json({ message: 'Request sent successfully' });
+  } catch (error) {
+    console.error('Error sending request', error);
+    res
+      .status(500)
+      .json({ message: 'Error sending request', error: error.message });
+  }
+};
+
+const removeRequest = async (req, res) => {
+  const { listingId } = req.params;
+  const userId = req.userId;
+  try {
+    await Request.deleteOne({ userId, listingId });
+    res.json({ message: 'Request removed successfully' });
+  } catch (error) {
+    console.error('Error removing request', error);
+    res
+      .status(500)
+      .json({ message: 'Error removing request', error: error.message });
+  }
+};
+
 const updatePreferences = async (req, res) => {
   const userId = req.userId;
   const { budget, city, school } = req.body;
@@ -375,4 +425,6 @@ module.exports = {
   addLike,
   removeLike,
   addReview,
+  addRequest,
+  removeRequest,
 };

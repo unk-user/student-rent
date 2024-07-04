@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {
   generateAccessToken,
@@ -8,7 +7,10 @@ const User = require('../models/User.model');
 
 const refreshAccessToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.sendStatus(401);
+  if (!refreshToken) {
+    console.log('no refresh token');
+    return res.sendStatus(401);
+  }
   res.clearCookie('refreshToken', {
     httpOnly: true,
     sameSite: 'Lax',
@@ -27,8 +29,8 @@ const refreshAccessToken = async (req, res) => {
         if (err) return; //Forbiden
         const hackedUser = await User.findById(decoded.userId);
         hackedUser.refreshTokens = [];
-        const result = await hackedUser.save();
-        console.log(result);
+        await hackedUser.save();
+        console.log(err);
       }
     );
     return res.sendStatus(403);
@@ -42,12 +44,12 @@ const refreshAccessToken = async (req, res) => {
         (rt) => rt !== refreshToken
       );
       if (err) {
-        console.log('error verify token');
+        console.log('error verify token', err);
         user.refreshTokens = [...newRefreshTokenArray];
         await user.save();
       }
-      if (err || user._id.toString() !== decoded.userId) {
-        return res.sendStatus(403);
+      if (err || user._id.toString() != decoded.userId) {
+        return res.sendStatus(401);
       }
       const accessToken = generateAccessToken(decoded.userId, decoded.role);
       const newRefreshToken = generateRefreshToken(
@@ -56,7 +58,7 @@ const refreshAccessToken = async (req, res) => {
       );
 
       const updatedUser = await User.findOneAndUpdate(
-        { _id: user._id,  },
+        { _id: user._id },
         {
           $set: { refreshTokens: [...newRefreshTokenArray, newRefreshToken] },
         },
@@ -69,6 +71,7 @@ const refreshAccessToken = async (req, res) => {
       }
 
       res.cookie('refreshToken', newRefreshToken, {
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
         httpOnly: true,
         secure: true,
         sameSite: 'Lax',
@@ -99,6 +102,7 @@ const logoutUser = async (req, res) => {
   user.refreshTokens = user.refreshTokens.filter((rt) => rt !== refreshToken);
   const result = await user.save();
   console.log(result);
+
   res.clearCookie('refreshToken', {
     httpOnly: true,
     sameSite: 'Lax',
