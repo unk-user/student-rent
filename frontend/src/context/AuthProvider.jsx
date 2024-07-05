@@ -40,8 +40,11 @@ function AuthProvider({ children }) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-
-        if (error.response.status === 401 && error.response.message === 'Unauthorized') {
+        console.log(error);
+        if (
+          error.response.status === 401 &&
+          error.response.data.message === 'Unauthorized'
+        ) {
           try {
             const response = await axiosInstance.post('/refresh');
 

@@ -48,7 +48,7 @@ function FormInput({
 
 FormInput.propTypes = {
   label: propTypes.string,
-  value: propTypes.string,
+  value: propTypes.any,
   onChange: propTypes.func,
   type: propTypes.string,
   placeholder: propTypes.string,

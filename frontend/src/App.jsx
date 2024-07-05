@@ -12,6 +12,8 @@ import { AuthContext } from './context/AuthProvider';
 import Layout from './pages/Tenant/Layout';
 import FindRentPage from './pages/FindRent/FindRentPage';
 import PropertyPage from './pages/PropertyPage/PropertyPage';
+import ProfilePage from './pages/Profile/ProfilePage';
+import FindRoommatesPage from './pages/FindRoommates/FindRoommatesPage';
 
 function App() {
   axios.defaults.withCredentials = true;
@@ -49,6 +51,14 @@ function App() {
         {
           path: 'rent/:listingId',
           element: <PropertyPage />,
+        },
+        {
+          path: 'roommates',
+          element: <FindRoommatesPage />,
+        },
+        {
+          path: 'profile',
+          element: <ProfilePage />,
         },
         {
           path: 'roommates',

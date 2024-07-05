@@ -1,5 +1,6 @@
 import FormInput from '@/components/FormInput';
 import FormSelect from '@/components/FormSelect';
+import ProfileImgInput from '@/pages/auth/components/ProfileImgInput';
 import { AuthContext } from '@/context/AuthProvider';
 import axiosInstance from '@/utils/axiosInstance';
 import { Alert, Button, Checkbox } from '@material-tailwind/react';
@@ -65,6 +66,10 @@ function RegisterPage() {
           return { ...state, password: action.value };
         case 'city':
           return { ...state, city: action.value };
+        case 'budget':
+          return { ...state, budget: action.value };
+        case 'school':
+          return { ...state, school: action.value };
         case 'reset':
           return { ...state, firstName: '', lastName: '', email: '', city: '' };
       }
@@ -75,8 +80,11 @@ function RegisterPage() {
       email: '',
       password: '',
       city: '',
+      budget: '',
+      school: '',
     }
   );
+  const [profileImg, setProfileImg] = useState(null);
   const inputRef = useRef(null);
 
   const togglePassword = () => {
@@ -93,14 +101,19 @@ function RegisterPage() {
   const mutation = useMutation({
     mutationKey: ['login'],
     mutationFn: async () => {
-      const { data } = await axiosInstance.post('/client/register', userData);
+      const formData = new FormData();
+      Object.entries(userData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append('image', profileImg);
+      const { data } = await axiosInstance.post('/client/register', formData);
       return data;
     },
+
     onSuccess: (data) => {
       setAuth(data);
-      navigate('/rent');
+      navigate('/tenant/rent');
     },
-    onError: () => {},
   });
 
   const onSubmit = async (e) => {
@@ -111,7 +124,7 @@ function RegisterPage() {
   return (
     <form
       onSubmit={onSubmit}
-      className="relative w-full p-4 md:p-0 sm:max-w-[600px] sm:mx-auto my-32"
+      className="relative w-full p-4 md:p-0 sm:max-w-[600px] sm:mx-auto my-8 max-sm:my-0"
     >
       {mutation.isError && (
         <Alert
@@ -124,6 +137,12 @@ function RegisterPage() {
       )}
       <h2 className="text-2xl">Register</h2>
       <div className="mt-6 mb-8">
+        <ProfileImgInput
+          file={profileImg}
+          setFile={setProfileImg}
+          label="Profile picture"
+          containerClassName="mb-2"
+        />
         <div className="grid gap-4 md:grid-cols-2 md:gap-2">
           <FormInput
             label="First name"
@@ -183,13 +202,33 @@ function RegisterPage() {
           )}
         </FormInput>
         <FormSelect
-          containerClassName="my-4"
-          value={userData.city ? userData.city : citiesArray[0]}
+          containerClassName="mt-4"
+          value={userData.city ? userData.city : ''}
           onChange={(e) => setUserData({ type: 'city', value: e.target.value })}
           label="City"
           options={citiesArray}
           required={true}
           placeholder="select a city"
+        />
+        <FormInput
+          label="Budget"
+          placeholder="1000"
+          type="number"
+          step={50}
+          value={userData.budget}
+          onChange={(e) =>
+            setUserData({ type: 'budget', value: e.target.value })
+          }
+          containerClassName="mt-4"
+        />
+        <FormInput
+          label="School"
+          placeholder="school"
+          containerClassName="my-4"
+          value={userData.school}
+          onChange={(e) =>
+            setUserData({ type: 'school', value: e.target.value })
+          }
         />
         <Checkbox
           containerProps={{

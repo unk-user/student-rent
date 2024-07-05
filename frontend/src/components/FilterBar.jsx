@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Drawer } from '@material-tailwind/react';
 import propTypes from 'prop-types';
 import { MoreVerticalCircle01Icon } from 'hugeicons-react';
@@ -14,6 +14,15 @@ function FilterBar({ filters, setFilters }) {
   const [rentPeriod, setRentPeriod] = useState(filters.rentPeriod);
   const [openDrawer, setOpenDrawer] = useState(false);
 
+  useEffect(() => {
+    setLocation(filters.location);
+    setPriceRange({
+      from: filters.minPrice,
+      to: filters.maxPrice,
+    });
+    setCategory(filters.category);
+    setRentPeriod(filters.rentPeriod);
+  }, [filters]);
 
   const handleClick = () => {
     setFilters({
@@ -48,7 +57,7 @@ function FilterBar({ filters, setFilters }) {
       <div className="hidden max-md:block">
         <Button
           variant="outlined"
-          size='sm'
+          size="sm"
           className="text-sm rounded-[6px] flex items-center gap-1"
           onClick={() => setOpenDrawer(true)}
         >

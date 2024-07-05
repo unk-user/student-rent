@@ -9,8 +9,8 @@ import propTypes from 'prop-types';
 
 function ListingDetails({ details }) {
   return (
-    <div className="col-span-3">
-      <div className="flex items-center gap-6">
+    <div className="col-span-3 max-md:col-span-1">
+      <div className="flex items-center gap-6 max-md:justify-center">
         <DetailsItem label="Bedrooms" icon={<BedSingle01Icon />}>
           {details?.rooms}
         </DetailsItem>

@@ -15,11 +15,14 @@ const requestSchema = new Schema({
     default: 'pending',
   },
   likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  likesCount: { type: Number, default: 0 },
   details: {
     numberOfRoommatesNeeded: { type: Number, required: true },
     numberOfRoommatesApplied: { type: Number, default: 1 },
+    preferences: [{ type: String }],
     message: { type: String, required: true },
   },
+  price: { type: Number },
   createdAt: { type: Date, default: Date.now, immutable: true },
 });
 
@@ -27,20 +30,23 @@ const requestSchema = new Schema({
 
 requestSchema.index({ userId: 1, listingId: 1 });
 
-requestSchema.post('save', async function onSave(request) {
-  const { listingId } = request;
-  const rentalListing = await RentalListing.findById(listingId);
-  rentalListing.requests.push(request._id);
-  await rentalListing.save();
+requestSchema.pre('save', async function preSave(next) {
+  if (this.isNew) {
+    const { listingId } = this;
+    const listing = await RentalListing.findById(listingId);
+    listing.requests.push(this._id);
+    await listing.save();
+    this.price = listing.details.price;
+  }
+  next();
 });
 
 requestSchema.post('remove', async function onRemove(request) {
   const { listingId } = request;
-  const rentalListing = await RentalListing.findById(listingId);
-  rentalListing.requests.pull(request._id);
-  await rentalListing.save();
+  await RentalListing.findByIdAndUpdate(listingId, {
+    $pull: { requests: request._id },
+  });
+  next();
 });
-
-requestSchema.index({ clientId, ownerId });
 
 module.exports = mongoose.model('Request', requestSchema);

@@ -9,6 +9,8 @@ const {
   removeLike,
   addRequest,
   removeRequest,
+  likeRequest,
+  getRequests,
 } = require('../controllers/clientControllers/clientControllers');
 const {
   loginClient,
@@ -35,6 +37,8 @@ router.delete('/listings/:listingId/like', removeLike);
 router.post('/listings/:listingId/review', addReview);
 router.post('/listings/:listingId/request', addRequest);
 router.delete('/listings/:listingId/request', removeRequest);
+router.post('/listings/:listingId/request/like', likeRequest);
+router.get('/requests', getRequests);
 
 router.patch('/profile/preferences', updatePreferences);
 

@@ -4,7 +4,7 @@ import { Button } from '@material-tailwind/react';
 
 function ActionCard({ listing, handleRequestDialog }) {
   return (
-    <div className="col-span-2 h-full border-2 py-2 px-3 border-gray-400">
+    <div className="col-span-2 max-md:col-span-1 h-full border-2 py-2 px-3 border-gray-400">
       <div className="flex items-center">
         <p>Rent Price</p>
         <p className="ml-auto text-lg max-md:text-base font-medium text-blue-300">

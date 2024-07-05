@@ -10,11 +10,13 @@ import ListingHeader from './components/ListingHeader';
 import ListingDetails from './components/ListingDetails';
 import ActionCard from './components/ActionCard';
 import ReviewSection from './components/ReviewSection';
+import RequestSection from './components/RequestSection';
 
 function PropertyPage() {
   const { listingId } = useParams();
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [likeButtonDisabled, setLikeButtonDisabled] = useState(false);
   const isMobile = useMediaQuery({ query: '(max-width: 760px)' });
 
   const query = useQuery({
@@ -46,6 +48,7 @@ function PropertyPage() {
   });
 
   const handleLike = () => {
+    if (likeButtonDisabled) return;
     if (liked) {
       likeMutation.mutate('unlike');
       setLiked(false);
@@ -53,6 +56,11 @@ function PropertyPage() {
       likeMutation.mutate('like');
       setLiked(true);
     }
+    setLikeButtonDisabled(true);
+
+    setTimeout(() => {
+      setLikeButtonDisabled(false);
+    }, 1000);
   };
 
   const handleRequestDialog = () => {
@@ -62,7 +70,7 @@ function PropertyPage() {
   return (
     <div className="w-full h-full bg-white">
       {query.status === 'success' && (
-        <div className="max-w-[1304px] mx-auto w-full py-8 px-[50px] max-xl:px-10 max-xl:max-w-none max-md:px-8">
+        <div className="max-w-[1304px] mx-auto w-full py-8 px-[50px] max-xl:px-10 max-xl:max-w-none max-md:px-8 max-sm:px-2">
           <div className="w-full flex flex-col gap-3">
             <ListingHeader
               liked={liked}
@@ -83,6 +91,11 @@ function PropertyPage() {
                 handleRequestDialog={handleRequestDialog}
               />
             </div>
+            <RequestSection
+              requests={query.data?.listing.requests}
+              listing={query.data?.listing}
+              refetch={query.refetch}
+            />
             <ReviewSection
               listing={query.data?.listing}
               listingId={listingId}

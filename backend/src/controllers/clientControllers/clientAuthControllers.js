@@ -137,7 +137,7 @@ const registerClient = async (req, res) => {
     });
     res.status(201).json({
       accessToken,
-      newUser,
+      user: newUser,
     });
   } catch (error) {
     console.error(error.message);

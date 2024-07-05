@@ -4,6 +4,7 @@ const RentalListingLike = require('../../models/RentalListingLike.model');
 const RentalListingView = require('../../models/RentalListingView.model');
 const Review = require('../../models/Review.model');
 const mongoose = require('mongoose');
+const Request = require('../../models/Request.model');
 
 const getListings = async (req, res) => {
   const userId = req.userId;
@@ -257,6 +258,12 @@ const getListing = async (req, res) => {
         },
       },
     ]);
+    await RentalListing.populate(listing, {
+      path: 'requests',
+      populate: {
+        path: 'userId',
+      },
+    });
 
     if (listing.length === 0) {
       return res.status(404).json({ message: 'Listing not found' });
@@ -354,7 +361,6 @@ const addRequest = async (req, res) => {
   const userId = req.userId;
   const { details } = req.body;
   try {
-    const client = await Client.findOne({ userId });
     const existingRequest = await Request.findOne({
       userId,
       listingId,
@@ -393,6 +399,47 @@ const removeRequest = async (req, res) => {
   }
 };
 
+const likeRequest = async (req, res) => {
+  const { listingId } = req.params;
+  const userId = req.userId;
+  try {
+    const request = await Request.findOne({ listingId });
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+    if (request.likes.includes(userId)) {
+      await request.updateOne({
+        $pull: { likes: userId },
+        $inc: { likesCount: -1 },
+      });
+      return res.status(204).json({ message: 'Request unliked successfully' });
+    } else {
+      await request.updateOne({
+        $push: { likes: userId },
+        $inc: { likesCount: 1 },
+      });
+      return res.status(200).json({ message: 'Request liked successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking request', error);
+    res
+      .status(500)
+      .json({ message: 'Error liking request', error: error.message });
+  }
+};
+
+const getRequests = async (req, res) => {
+  try {
+    const requests = await Request.find();
+    res.status(200).json({ requests });
+  } catch (error) {
+    console.error('Error getting requests', error);
+    res
+      .status(500)
+      .json({ message: 'Error getting requests', error: error.message });
+  }
+};
+
 const updatePreferences = async (req, res) => {
   const userId = req.userId;
   const { budget, city, school } = req.body;
@@ -427,4 +474,6 @@ module.exports = {
   addReview,
   addRequest,
   removeRequest,
+  likeRequest,
+  getRequests,
 };

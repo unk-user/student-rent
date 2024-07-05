@@ -13,7 +13,7 @@ function ReviewSection({ listing, refetch, listingId }) {
   };
 
   return (
-    <div className="w-full mt-24">
+    <div className="w-full mt-12">
       <h4 className="text-lg font-medium">Reviews and ratings</h4>
       <div className="flex items-center pb-2 border-b-2 border-gray-500">
         <div className="text-lg mr-1 text-white bg-blue-500 p-[1px]">
@@ -24,7 +24,7 @@ function ReviewSection({ listing, refetch, listingId }) {
           ratedColor="blue"
           readonly
         />
-        <p className="ml-2 text-gray-600">
+        <p className="ml-2 text-gray-600 max-sm:hidden">
           Based on {listing.interactionSummary.reviewCount} review
           {listing.interactionSummary.reviewCount > 1 ? 's' : ''}
         </p>
@@ -43,7 +43,7 @@ function ReviewSection({ listing, refetch, listingId }) {
           refetchListing={refetch}
         />
       </div>
-      <div className="grid grid-cols-4 max-xl:gap-1 max-md:grid-cols-2 gap-3 py-3">
+      <div className="grid grid-cols-4 max-xl:gap-1 max-md:grid-cols-2 max-sm:grid-cols-1 gap-3 py-3">
         {listing.reviews?.map((review) => (
           <Review key={review._id} review={review} />
         ))}
