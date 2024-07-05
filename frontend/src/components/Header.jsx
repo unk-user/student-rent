@@ -7,7 +7,6 @@ import {
   IconButton,
   Menu,
   MenuHandler,
-  MenuItem,
   MenuList,
 } from '@material-tailwind/react';
 import { useMutation } from '@tanstack/react-query';
@@ -17,18 +16,22 @@ import {
   Menu01Icon,
   Message02Icon,
   Notification01Icon,
+  UserIcon,
 } from 'hugeicons-react';
 import { useContext, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 function Header() {
   const { auth, setAuth } = useContext(AuthContext);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const navigate = useNavigate();
 
   const logoutMutation = useMutation({
     mutationKey: ['logout'],
     mutationFn: async () => {
-      const { data } = await axiosInstance.post('/logout');
+      const { data } = await axiosInstance.post('/logout', {
+        credentials: 'include',
+      });
       return data;
     },
     onSuccess: () => {
@@ -115,6 +118,17 @@ function Header() {
                 variant="text"
                 size="sm"
                 className="!rounded-[6px] !w-full flex !justify-start items-center gap-2"
+                disabled={logoutMutation.isPending}
+                onClick={() => navigate('/tenant/profile')}
+              >
+                <UserIcon />
+                Profile
+              </Button>
+              <Button
+                ripple={false}
+                variant="text"
+                size="sm"
+                className="!rounded-[6px] !w-full flex !justify-start items-center gap-2"
                 onClick={() => logoutMutation.mutate()}
                 disabled={logoutMutation.isPending}
               >
@@ -155,7 +169,7 @@ function Header() {
               <li>
                 <Link className="flex items-center gap-2 w-full py-1">
                   <div className="overflow-hidden rounded-full bg-gray-600 w-8 aspect-square">
-                    {auth?.user?.profilePicture?.url && (
+                    {!!auth?.user?.profilePicture?.url && (
                       <img
                         src={auth?.user?.profilePicture?.url}
                         alt="profile"

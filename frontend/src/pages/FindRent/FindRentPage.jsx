@@ -65,7 +65,7 @@ function FindRentPage() {
       </section>
       {query?.data?.listings.length > 0 && (
         <Pagination
-          page={searchParams.get('page') || 1}
+          page={Number(searchParams.get('page')) || 1}
           setPage={handlePagination}
           totalPages={query?.data?.totalPages}
         />
