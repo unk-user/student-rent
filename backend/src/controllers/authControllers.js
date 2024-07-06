@@ -17,7 +17,7 @@ const refreshAccessToken = async (req, res) => {
     secure: true,
   });
 
-  const user = await User.findOne({ refreshTokens: refreshToken });
+  const user = await User.findOne({ refreshTokens: { $in: [refreshToken] } });
 
   //Detected reuse!
   if (!user) {
