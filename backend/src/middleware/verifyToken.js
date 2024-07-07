@@ -12,7 +12,7 @@ const verifyToken = async (req, res, next) => {
     const role = decoded.role;
     req.userId = userId;
     req.role = role;
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(401).json({ message: 'Unauthorized' });
     }

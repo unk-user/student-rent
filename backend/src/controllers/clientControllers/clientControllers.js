@@ -214,7 +214,7 @@ const getListing = async (req, res) => {
       },
       {
         $lookup: {
-          from: 'rentalListingLikes',
+          from: 'rentallistinglikes',
           let: { listingId: '$_id' },
           pipeline: [
             {
@@ -310,7 +310,7 @@ const addLike = async (req, res) => {
 
     const like = new RentalListingLike({ rentalListingId: listingId, userId });
     await like.save();
-    res.json({ message: 'Like added successfully' });
+    res.json({ message: 'Like added successfully', liked: true });
   } catch (error) {
     console.error('Error adding like', error);
     res
@@ -323,7 +323,7 @@ const removeLike = async (req, res) => {
   const userId = req.userId;
   try {
     await RentalListingLike.deleteOne({ rentalListingId: listingId, userId });
-    res.json({ message: 'Like removed successfully' });
+    res.json({ message: 'Like removed successfully', liked: false });
   } catch (error) {
     console.error('Error removing like', error);
     res

@@ -8,12 +8,11 @@ const userRouter = require('./routes/userRouter');
 const landlordRouter = require('./routes/ownerRoutes');
 const clientRouter = require('./routes/clientRoutes');
 const uploadRouter = require('./routes/uploadRouter');
-const dotenv = require('dotenv');
-dotenv.config();
+const configureSocket = require('./config/socket');
+require('dotenv').config();
 
 const app = express();
 const server = require('http').createServer(app);
-
 
 connectDB();
 
@@ -50,8 +49,12 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`app started on port: ${process.env.PORT}`);
+const io = configureSocket(server);
+
+app.set('io', io);
+
+server.listen(process.env.PORT, () => {
+  console.log('Server started on port', process.env.PORT);
 });
 
 module.exports = app;
