@@ -4,13 +4,28 @@ import axiosInstance from '@/utils/axiosInstance';
 
 export const AuthContext = createContext({});
 
+let runningPromise = undefined;
+let refreshCalled = false;
+
 function AuthProvider({ children }) {
   const [auth, setAuth] = useState({ accessToken: undefined });
+
+  const refreshToken = () => {
+    if (refreshCalled) {
+      return runningPromise;
+    } else {
+      refreshCalled = true;
+      runningPromise = axiosInstance.post('/refresh').finally(() => {
+        refreshCalled = false;
+      });
+      return runningPromise;
+    }
+  };
 
   useEffect(() => {
     const initialRefresh = async () => {
       try {
-        const response = await axiosInstance.post(`/refresh`);
+        const response = await refreshToken();
         const newAuth = response.data;
         setAuth(newAuth);
       } catch {
@@ -46,7 +61,7 @@ function AuthProvider({ children }) {
           error.response.data.message === 'Unauthorized'
         ) {
           try {
-            const response = await axiosInstance.post('/refresh');
+            const response = await refreshToken();
 
             setAuth(response.data);
 
