@@ -1,4 +1,5 @@
 import { AuthContext } from '@/context/AuthProvider';
+import { ConversationContext } from '@/context/ConversationProvider';
 import axiosInstance from '@/utils/axiosInstance';
 import { Button, Chip, IconButton } from '@material-tailwind/react';
 import { useMutation } from '@tanstack/react-query';
@@ -6,10 +7,13 @@ import { ThumbsUpIcon } from 'hugeicons-react';
 import moment from 'moment/moment';
 import propTypes from 'prop-types';
 import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function RequestCard({ request, refetch, withPadding }) {
   const { auth } = useContext(AuthContext);
+  const { conversations } = useContext(ConversationContext);
   const [likeDisable, setLikeDisable] = useState(false);
+  const navigate = useNavigate();
 
   const removeMutation = useMutation({
     mutationKey: ['removeRequest'],
@@ -48,6 +52,18 @@ function RequestCard({ request, refetch, withPadding }) {
     setInterval(() => {
       setLikeDisable(false);
     }, 1000);
+  };
+
+  const onContact = () => {
+    const conversationId = Array.from(conversations.values()).find(
+      (conversation) => conversation.participants.includes(request.userId._id)
+    )?._id;
+
+    if (conversationId) {
+      navigate(`/tenant/messages/${conversationId}`);
+    } else {
+      navigate(`/tenant/messages/new/${request.userId._id}`);
+    }
   };
 
   return (
@@ -109,7 +125,11 @@ function RequestCard({ request, refetch, withPadding }) {
           </Button>
         ) : (
           <div className="flex -items-center ml-auto">
-            <Button size="sm" className="rounded-[6px] bg-blue-300">
+            <Button
+              size="sm"
+              className="rounded-[6px] bg-blue-300"
+              onClick={onContact}
+            >
               Contact
             </Button>
             <IconButton
@@ -141,6 +161,7 @@ RequestCard.propTypes = {
   request: propTypes.object,
   listing: propTypes.object,
   refetch: propTypes.func,
+  withPadding: propTypes.bool,
 };
 
 export default RequestCard;

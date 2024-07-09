@@ -14,6 +14,10 @@ import FindRentPage from './pages/FindRent/FindRentPage';
 import PropertyPage from './pages/PropertyPage/PropertyPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import FindRoommatesPage from './pages/FindRoommates/FindRoommatesPage';
+import ChatLayout from './pages/Messages/ChatLayout';
+import ConversationProvider from './context/ConversationProvider';
+import Chat from './pages/Messages/components/Chat';
+import NewChat from './pages/Messages/components/NewChat';
 
 function App() {
   axios.defaults.withCredentials = true;
@@ -61,16 +65,28 @@ function App() {
           element: <ProfilePage />,
         },
         {
-          path: 'roommates',
-        },
-        {
           path: 'messages',
+          element: <ChatLayout />,
+          children: [
+            {
+              path: ':conversationId',
+              element: <Chat />,
+            },
+            {
+              path: 'new/:userId',
+              element: <NewChat />,
+            },
+          ],
         },
       ],
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <ConversationProvider>
+      <RouterProvider router={router} />
+    </ConversationProvider>
+  );
 }
 
 export default App;

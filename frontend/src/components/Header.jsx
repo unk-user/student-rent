@@ -20,9 +20,12 @@ import {
 } from 'hugeicons-react';
 import { useContext, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import profileSvg from '@/assets/blank-profile-picture-973460.svg';
+import { ConversationContext } from '@/context/ConversationProvider';
 
 function Header() {
   const { auth, setAuth } = useContext(AuthContext);
+  const { onlineState } = useContext(ConversationContext);
   const [openDrawer, setOpenDrawer] = useState(false);
   const navigate = useNavigate();
 
@@ -98,15 +101,18 @@ function Header() {
                   placement="top-end"
                   color="blue"
                   overlap="circular"
+                  invisible={!onlineState}
                   withBorder
                 >
                   <div className="overflow-hidden rounded-full bg-gray-600 w-[28px] aspect-square">
-                    {auth?.user?.profilePicture?.url && (
+                    {auth?.user?.profilePicture?.url ? (
                       <img
                         src={auth?.user?.profilePicture?.url}
                         alt="profile"
                         className="object-cover"
                       />
+                    ) : (
+                      <img src={profileSvg} alt="profile" />
                     )}
                   </div>
                 </Badge>
@@ -169,12 +175,14 @@ function Header() {
               <li>
                 <Link className="flex items-center gap-2 w-full py-1">
                   <div className="overflow-hidden rounded-full bg-gray-600 w-8 aspect-square">
-                    {!!auth?.user?.profilePicture?.url && (
+                    {auth?.user?.profilePicture?.url ? (
                       <img
                         src={auth?.user?.profilePicture?.url}
                         alt="profile"
                         className="object-cover"
                       />
+                    ) : (
+                      <img src={profileSvg} alt="profile" />
                     )}
                   </div>
                   Profile
