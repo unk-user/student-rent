@@ -1,6 +1,6 @@
 const { Server } = require('socket.io');
 const verifySocketToken = require('../middleware/verifySocketToken');
-const connectionHandler = require('../handlers/connectionHandler');
+const socketHandler = require('../handlers/socketHandler');
 
 function configureSocket(server) {
   const io = new Server(server, {
@@ -22,11 +22,12 @@ function configureSocket(server) {
       next();
     } catch (error) {
       console.error('Socket authentication error:', error.message);
+      socket.disconnect();
       next(new Error('Unauthorized'));
     }
   });
 
-  io.on('connection', connectionHandler);
+  socketHandler(io);
 
   return io;
 }

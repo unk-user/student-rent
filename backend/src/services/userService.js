@@ -1,21 +1,24 @@
-const User = require('../models/User.model');
-
 const onlineUsers = new Map();
 
-const userService = {
-  setUserOnline: (userId, socketId) => {
-    onlineUsers.set(userId, socketId);
-  },
-
-  setUserOffline: (userId) => {
-    onlineUsers.delete(userId);
-  },
-
-  getSocketId: (userId) => {
-    return onlineUsers.get(userId);
-  },
-
-  getContactStatus: async (userId) => {},
+const setUserOnline = (userId, socketId) => {
+  onlineUsers.set(userId, socketId);
 };
 
-module.exports = userService;
+const setUserOffline = (userId) => {
+  onlineUsers.delete(userId);
+};
+
+const getSocketId = (userId) => {
+  return onlineUsers.get(userId);
+};
+
+const getOnlineUsers = () => {
+  return onlineUsers;
+};
+
+module.exports = {
+  setUserOnline,
+  setUserOffline,
+  getSocketId,
+  getOnlineUsers,
+};
