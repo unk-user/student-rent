@@ -262,6 +262,7 @@ function RegisterPage() {
           className="max-w-[280px] flex-1 mx-auto text-base bg-blue-300"
           size="sm"
           type="submit"
+          loading={mutation.isPending}
         >
           Sign up
         </Button>

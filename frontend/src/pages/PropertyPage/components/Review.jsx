@@ -1,6 +1,7 @@
 import { Rating } from '@material-tailwind/react';
 import moment from 'moment/moment';
 import propTypes from 'prop-types';
+import profileSvg from '@/assets/blank-profile-picture-973460.svg';
 
 function Review({ review }) {
   return (
@@ -21,12 +22,14 @@ function Review({ review }) {
       </div>
       <div className="w-full flex items-center">
         <div className="w-8 h-8 overflow-hidden bg-gray-600 rounded-full">
-          {review.userId.profilePicture && (
+          {review.userId.profilePicture?.url ? (
             <img
-              src={review.userId.profilePicture.url}
-              alt="profile picture"
-              className="w-full h-full object-cover"
+              src={review.userId.profilePicture?.url}
+              alt="profile"
+              className="object-cover"
             />
+          ) : (
+            <img src={profileSvg} alt="profile" />
           )}
         </div>
         <p className="ml-2 text-sm">

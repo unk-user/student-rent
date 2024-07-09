@@ -6,6 +6,7 @@ import ListingCard from './components/ListingCard';
 import Pagination from './components/Pagination';
 import { uniqueId } from 'lodash';
 import { useSearchParams } from 'react-router-dom';
+import TransparentLayoutWrapper from '@/components/TransparentLayoutWrapper';
 
 function FindRentPage() {
   const [filters, setFilters] = useState({
@@ -44,7 +45,7 @@ function FindRentPage() {
   });
 
   return (
-    <div className="w-full h-full px-[114px] py-6 max-w-[1432px] mx-auto max-xl:px-10 max-md:px-8 max-sm:px-6">
+    <TransparentLayoutWrapper>
       <FilterBar filters={filters} setFilters={setFilters} />
       <section className="grid grid-cols-4 gap-[20px] mb-4 mt-6 w-full max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1">
         {query.status === 'success' ? (
@@ -95,7 +96,7 @@ function FindRentPage() {
           totalPages={query?.data?.totalPages}
         />
       )}
-    </div>
+    </TransparentLayoutWrapper>
   );
 }
 

@@ -2,7 +2,7 @@ import axiosInstance from '@/utils/axiosInstance';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import ImagesPreview from './components/ImagesPreview';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ImagesPreviewMobile from './components/ImagesPreviewMobile';
 import { useMediaQuery } from 'react-responsive';
 import RequestDialog from '@/components/RequestDialog';
@@ -25,37 +25,40 @@ function PropertyPage() {
       const { data } = await axiosInstance.get(`/client/listings/${listingId}`);
       return data;
     },
-    onSuccess: (data) => {
-      setLiked(!!data?.listing?.liked);
-    },
   });
 
   const likeMutation = useMutation({
     mutationKey: ['likeListing'],
-    mutationFn: async (type) => {
-      if (type === 'like') {
+    mutationFn: async () => {
+      if (!liked) {
         const { data } = await axiosInstance.post(
           `/client/listings/${listingId}/like`
         );
         return data;
-      } else if (type === 'unlike') {
+      } else if (liked) {
         const { data } = await axiosInstance.delete(
           `/client/listings/${listingId}/like`
         );
         return data;
       }
-    },
+    }
   });
+
+  useEffect(() => {
+    if (query.isSuccess) {
+      setLiked(!!query.data.listing.liked);
+    }
+  }, [query]);
+
+  useEffect(() => {
+    if (likeMutation.isSuccess) {
+      setLiked(likeMutation.data.liked);
+    }
+  }, [likeMutation]);
 
   const handleLike = () => {
     if (likeButtonDisabled) return;
-    if (liked) {
-      likeMutation.mutate('unlike');
-      setLiked(false);
-    } else {
-      likeMutation.mutate('like');
-      setLiked(true);
-    }
+    likeMutation.mutate();
     setLikeButtonDisabled(true);
 
     setTimeout(() => {

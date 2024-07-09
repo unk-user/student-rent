@@ -33,7 +33,7 @@ function FilterItems({
   };
 
   return (
-    <div className="grid items-center gap-4 grid-cols-4 max-sm:grid-cols-2 w-full max-w-[80%] max-md:max-w-none max-sm:flex-wrap">
+    <div className="grid items-center gap-4 grid-cols-4 max-sm:grid-cols-2 w-[80%] max-md:w-full max-w-[1000px] max-md:max-w-none max-sm:flex-wrap">
       <div className="pr-4 border-r-2 border-gray-400">
         <FilterInput
           label="Location"

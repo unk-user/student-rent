@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import propTypes from 'prop-types';
 import { Button } from '@material-tailwind/react';
+import profileSvg from '@/assets/blank-profile-picture-973460.svg';
 
 function ActionCard({ listing, handleRequestDialog }) {
   return (
-    <div className="col-span-2 max-md:col-span-1 h-full border-2 py-2 px-3 border-gray-400">
+    <div className="col-span-2 max-sm:col-span-1 h-full border-2 py-2 px-3 border-gray-400">
       <div className="flex items-center">
         <p>Rent Price</p>
         <p className="ml-auto text-lg max-md:text-base font-medium text-blue-300">
@@ -13,12 +14,14 @@ function ActionCard({ listing, handleRequestDialog }) {
       </div>
       <Link className="w-max text-gray-600 hover:text-black transition-colors duration-200 flex items-center mt-2">
         <div className="w-10 h-10 bg-gray-500 rounded-full overflow-hidden">
-          {listing.landlord.profilePicture && (
+          {listing.landlord.profilePicture ? (
             <img
               src={listing.landlord.profilePicture.url}
               className="w-full h-full object-cover"
               alt="profile"
             />
+          ) : (
+            <img src={profileSvg} alt="profile" />
           )}
         </div>
         <p className="ml-2">
