@@ -1,3 +1,4 @@
+const User = require('../models/User.model');
 const onlineUsers = new Map();
 
 const setUserOnline = (userId, socketId) => {
@@ -16,9 +17,14 @@ const getOnlineUsers = () => {
   return onlineUsers;
 };
 
+const getUserData = async (userId) => {
+  return await User.findById(userId).select({ hash: 0, refreshTokens: 0 });
+};
+
 module.exports = {
   setUserOnline,
   setUserOffline,
   getSocketId,
   getOnlineUsers,
+  getUserData,
 };

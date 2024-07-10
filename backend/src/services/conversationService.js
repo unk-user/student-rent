@@ -12,7 +12,7 @@ const updateLastMessage = async (conversationId, messageData) => {
       updatedAt: messageData.createdAt,
     },
     { new: true }
-  );
+  ).populate('participants');
 };
 
 const createConversation = async (participants) => {

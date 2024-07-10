@@ -15,16 +15,18 @@ const handleMessageSend = async (socket, messageData) => {
     messageData
   );
 
+  // Emit message to all participants except the sender
   socket.to(messageData.conversationId).emit('new_message', {
     conversationId: messageData.conversationId,
     message: newMessage,
   });
+
 };
 
 const handleNewConversationMessage = async (socket, io, messageData) => {
   try {
     let conversationId = messageData.conversationId;
-    const receiverSocketId = userService.getSocketId(messageData.receiverId);
+
     if (!conversationId) {
       const newConversation = await conversationService.createConversation([
         socket.userId,
@@ -34,7 +36,9 @@ const handleNewConversationMessage = async (socket, io, messageData) => {
 
       socket.join(conversationId);
 
+      const receiverSocketId = userService.getSocketId(messageData.receiverId);
       if (receiverSocketId) {
+        console.log('receiver online: ', receiverSocketId);
         const receiverSocket = io.sockets.sockets.get(receiverSocketId);
         receiverSocket.join(conversationId);
       }
@@ -54,13 +58,9 @@ const handleNewConversationMessage = async (socket, io, messageData) => {
         createdAt: newMessage.createdAt,
       }
     );
-    socket.emit('new_conversation', newConversation);
-    if (receiverSocketId) {
-      console.log('receiverSocketId', receiverSocketId);
-      socket.in(conversationId).emit('new_message', newMessage);
-    } else {
-      socket.emit('new_message', newMessage);
-    }
+
+    io.in(conversationId).emit('new_conversation', newConversation);
+    io.in(conversationId).emit('new_conversation_message', newMessage);
   } catch (error) {
     console.error('Error sending new message:', error);
   }
