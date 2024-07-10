@@ -8,6 +8,7 @@ const userRouter = require('./routes/userRouter');
 const landlordRouter = require('./routes/ownerRoutes');
 const clientRouter = require('./routes/clientRoutes');
 const uploadRouter = require('./routes/uploadRouter');
+const conversationRouter = require('./routes/conversationRoutes');
 const configureSocket = require('./config/socket');
 require('dotenv').config();
 
@@ -33,6 +34,7 @@ app.use('/api/user', userRouter);
 app.use('/api/landlord', landlordRouter);
 app.use('/api/client', clientRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/conversations', conversationRouter);
 
 app.use((req, res, next) => {
   const error = new Error('not found');

@@ -38,6 +38,10 @@ const getConversations = async (req, res) => {
         },
       },
     ]);
+    await User.populate(conversations, {
+      path: 'participants',
+      select: { hash: 0, refreshTokens: 0 },
+    });
 
     res.status(200).json(conversations);
   } catch (error) {
@@ -62,7 +66,44 @@ const getUserData = async (req, res) => {
   }
 };
 
+const getMessages = async (req, res) => {
+  const { conversationId } = req.params;
+  const { pageCursor } = req.query;
+
+  try {
+    let query = { conversationId: conversationId };
+
+    if (pageCursor) {
+      const pointedMessage = await Message.findById(pageCursor);
+      if (!pointedMessage) {
+        throw new Error('Invalid cursor');
+      }
+      query.createdAt = { $lt: pointedMessage.createdAt };
+    }
+
+    const messages = await Message.find(query)
+      .sort({ createdAt: -1 })
+      .limit(11)
+      .lean();
+
+    const hasMore = messages.length === 11;
+    const paginatedMessages = hasMore ? messages.slice(0, -1) : messages;
+
+    return res.status(200).json({
+      messages: paginatedMessages,
+      hasMore,
+      nextCursor: hasMore
+        ? paginatedMessages[paginatedMessages.length - 1]._id
+        : null,
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getConversations,
   getUserData,
+  getMessages,
 };
