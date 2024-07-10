@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { AuthContext } from './AuthProvider';
 import io from 'socket.io-client';
@@ -9,10 +15,99 @@ export const ConversationContext = createContext(null);
 
 function ConversationProvider({ children }) {
   const { auth } = useContext(AuthContext);
-  const [conversations, setConversations] = useState(new Map());
-  const [conversationData, setConversationData] = useState(new Map());
   const [onlineState, setOnlineState] = useState(false);
   const [socketInstance, setSocketInstance] = useState(null);
+  const [chatState, dispatch] = useReducer(
+    (state, action) => {
+      switch (action.type) {
+        case 'NEW_CONVERSATION':
+          return {
+            ...state,
+            conversations: new Map([
+              ...state.conversations,
+              [action.value._id, action.value],
+            ]),
+          };
+        case 'NEW_CONVERSATION_MESSAGE':
+          return {
+            ...state,
+            conversations: new Map([
+              ...state.conversations,
+              [
+                action.value.conversationId,
+                {
+                  ...state.conversations.get(action.value.conversationId),
+                  lastMessage: {
+                    sender: action.value.sender,
+                    content: action.value.content,
+                    createdAt: action.value.createdAt,
+                  },
+                },
+              ],
+            ]),
+            conversationData: new Map([
+              ...state.conversationData,
+              [
+                action.value.conversationId,
+                {
+                  messages: [action.value],
+                  hasMore: false,
+                  pageCursor: action.value._id,
+                },
+              ],
+            ]),
+          };
+        case 'SET_CONVERSATIONS':
+          return {
+            ...state,
+            conversations: new Map(
+              action.value.map((conversation) => [
+                conversation._id,
+                conversation,
+              ])
+            ),
+          };
+        case 'SET_CONVERSATION_DATA':
+          return {
+            ...state,
+            conversationData: new Map([
+              ...state.conversationData,
+              [
+                action.value.conversationId,
+                {
+                  messages: action.value.messages,
+                  hasMore: action.value.hasMore,
+                  pageCursor: action.value.pageCursor,
+                },
+              ],
+            ]),
+          };
+        case 'UNSHIFT_CONVERSATION_DATA':
+          return {
+            ...state,
+            conversationData: new Map([
+              ...state.conversationData,
+              [
+                action.value.conversationId,
+                {
+                  messages: [
+                    action.value.messages,
+                    ...state.conversationData.get(action.value.conversationId)
+                      .messages,
+                  ],
+                  hasMore: action.value.hasMore,
+                  pageCursor: action.value.pageCursor,
+                },
+              ],
+            ]),
+          };
+      }
+    },
+    {
+      conversations: new Map(),
+      conversationData: new Map(),
+    }
+  );
 
   useEffect(() => {
     if (auth?.accessToken) {
@@ -38,19 +133,18 @@ function ConversationProvider({ children }) {
       });
 
       socket.on('new_conversation', (conversation) => {
-        setConversations((prevConversations) => {
-          prevConversations.set(conversation._id, conversation);
-          return new Map(prevConversations);
+        console.log('new_conversation', conversation);
+        dispatch({
+          type: 'NEW_CONVERSATION',
+          value: conversation,
         });
       });
 
-      socket.on('new_message', (message) => {
-        console.log('new_message', message);
-        setConversationData((prevConversationData) => {
-          prevConversationData.set(message.conversationId, {
-            message,
-            userData: null,
-          });
+      socket.on('new_conversation_message', (message) => {
+        console.log('new_conversation_message', message);
+        dispatch({
+          type: 'NEW_CONVERSATION_MESSAGE',
+          value: message,
         });
       });
 
@@ -93,19 +187,20 @@ function ConversationProvider({ children }) {
 
   useEffect(() => {
     if (conversationQuery.status === 'success') {
-      setConversations(new Map(conversationQuery.data.map((c) => [c._id, c])));
+      dispatch({
+        type: 'SET_CONVERSATIONS',
+        value: conversationQuery.data,
+      });
     }
-  }, [conversationQuery.status]);
+  }, [conversationQuery.data]);
 
   return (
     <ConversationContext.Provider
       value={{
-        conversations,
-        setConversations,
+        chatState,
+        dispatch,
         onlineState,
         socketInstance,
-        conversationData,
-        setConversationData,
       }}
     >
       {children}
