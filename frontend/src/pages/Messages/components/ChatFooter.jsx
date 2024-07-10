@@ -3,13 +3,13 @@ import { SentIcon } from 'hugeicons-react';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-function ChatFooter({ sendMessages }) {
-  const [message, setMessages] = useState('');
+function ChatFooter({ sendMessage }) {
+  const [message, setMessage] = useState('');
 
   const onSend = () => {
     if (message !== '') {
-      sendMessages(message);
-      setMessages('');
+      sendMessage(message);
+      setMessage('');
     }
   };
 
@@ -18,7 +18,7 @@ function ChatFooter({ sendMessages }) {
       <Textarea
         variant="outlined"
         value={message}
-        onChange={(e) => setMessages(e.target.value)}
+        onChange={(e) => setMessage(e.target.value)}
         label="Message"
         className="!text-sm min-h-[60px] h-max !rounded-[6px]"
       />

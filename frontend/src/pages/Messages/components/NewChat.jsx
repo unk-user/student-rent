@@ -9,7 +9,7 @@ import { ConversationContext } from '@/context/ConversationProvider';
 
 function NewChat() {
   const { userId } = useParams();
-  const { socketInstance, conversations } = useContext(ConversationContext);
+  const { socketInstance, chatState } = useContext(ConversationContext);
   const navigate = useNavigate();
 
   const userDataQuery = useQuery({
@@ -23,16 +23,17 @@ function NewChat() {
   });
 
   useEffect(() => {
-    const conversation = Array.from(conversations.values()).find((conv) =>
-      conv.participants.includes(userId)
+    const conversation = Array.from(chatState.conversations.values()).find(
+      (conv) =>
+        conv.participants.some((participant) => participant._id === userId)
     );
 
     if (conversation) {
       navigate(`/tenant/messages/${conversation._id}`);
     }
-  }, [conversations]);
+  }, [chatState.conversations, navigate, userId]);
 
-  const sendMessages = (message) => {
+  const sendMessage = (message) => {
     socketInstance.emit('send_message_new', {
       content: message,
       receiverId: userId,
@@ -44,7 +45,7 @@ function NewChat() {
       <>
         <ChatHeader userData={userDataQuery.data} />
         <ChatBody />
-        <ChatFooter sendMessages={sendMessages} />
+        <ChatFooter sendMessage={sendMessage} />
       </>
     );
 }

@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 function RequestCard({ request, refetch, withPadding }) {
   const { auth } = useContext(AuthContext);
-  const { conversations } = useContext(ConversationContext);
+  const { chatState } = useContext(ConversationContext);
   const [likeDisable, setLikeDisable] = useState(false);
   const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ function RequestCard({ request, refetch, withPadding }) {
   };
 
   const onContact = () => {
-    const conversationId = Array.from(conversations.values()).find(
+    const conversationId = Array.from(chatState.conversations.values()).find(
       (conversation) => conversation.participants.includes(request.userId._id)
     )?._id;
 
