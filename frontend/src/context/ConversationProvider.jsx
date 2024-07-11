@@ -17,6 +17,7 @@ function ConversationProvider({ children }) {
   const { auth } = useContext(AuthContext);
   const [onlineState, setOnlineState] = useState(false);
   const [socketInstance, setSocketInstance] = useState(null);
+  const [participantsStatus, setParticipantsStatus] = useState(null);
   const [chatState, dispatch] = useReducer(
     (state, action) => {
       switch (action.type) {
@@ -31,28 +32,22 @@ function ConversationProvider({ children }) {
         case 'NEW_CONVERSATION_MESSAGE':
           return {
             ...state,
+            conversationData: {
+              ...state.conversationData,
+              [action.value.conversationId]: {
+                messages: [action.value],
+              },
+            },
             conversations: new Map([
               ...state.conversations,
               [
                 action.value.conversationId,
                 {
                   ...state.conversations.get(action.value.conversationId),
-                  lastMessage: {
-                    sender: action.value.sender,
-                    content: action.value.content,
-                    createdAt: action.value.createdAt,
-                  },
-                },
-              ],
-            ]),
-            conversationData: new Map([
-              ...state.conversationData,
-              [
-                action.value.conversationId,
-                {
-                  messages: [action.value],
-                  hasMore: false,
-                  pageCursor: action.value._id,
+                  newMessagesCount:
+                    action.value.sender !== auth.user._id
+                      ? [{ count: 1 }]
+                      : [{ count: 0 }],
                 },
               ],
             ]),
@@ -67,36 +62,64 @@ function ConversationProvider({ children }) {
               ])
             ),
           };
-        case 'SET_CONVERSATION_DATA':
+        case 'NEW_MESSAGE':
           return {
             ...state,
-            conversationData: new Map([
-              ...state.conversationData,
+            conversations: new Map([
+              ...state.conversations,
               [
                 action.value.conversationId,
                 {
-                  messages: action.value.messages,
-                  hasMore: action.value.hasMore,
-                  pageCursor: action.value.pageCursor,
+                  ...state.conversations.get(action.value.conversationId),
+                  lastMessage: {
+                    sender: action.value.sender,
+                    content: action.value.content,
+                    createdAt: action.value.createdAt,
+                  },
+                  newMessagesCount:
+                    state.conversations.get(action.value.conversationId)
+                      ?.newMessagesCount[0] &&
+                    action.value.sender !== auth.user._id
+                      ? [
+                          {
+                            count: state.conversations.get(
+                              action.value.conversationId
+                            ).newMessagesCount[0].count++,
+                          },
+                        ] || [{ count: 0 }]
+                      : [{ count: 0 }],
                 },
               ],
             ]),
+            conversationData: {
+              ...state.conversationData,
+              [action.value.conversationId]: {
+                messages: state.conversationData[action.value.conversationId]
+                  ? [
+                      action.value,
+                      ...state.conversationData[action.value.conversationId]
+                        .messages,
+                    ]
+                  : [action.value],
+                hasMore: state.conversationData[action.value.conversationId]
+                  ? state.conversationData[action.value.conversationId].hasMore
+                  : true,
+                pageCursor:
+                  state.conversationData[action.value.conversationId]
+                    ?.pageCursor || action.value._id,
+              },
+            },
           };
-        case 'UNSHIFT_CONVERSATION_DATA':
+        case 'MARK_CONVERSATION_AS_READ':
           return {
             ...state,
-            conversationData: new Map([
-              ...state.conversationData,
+            conversations: new Map([
+              ...state.conversations,
               [
                 action.value.conversationId,
                 {
-                  messages: [
-                    action.value.messages,
-                    ...state.conversationData.get(action.value.conversationId)
-                      .messages,
-                  ],
-                  hasMore: action.value.hasMore,
-                  pageCursor: action.value.pageCursor,
+                  ...state.conversations.get(action.value.conversationId),
+                  newMessagesCount: [{ count: 0 }],
                 },
               ],
             ]),
@@ -105,7 +128,7 @@ function ConversationProvider({ children }) {
     },
     {
       conversations: new Map(),
-      conversationData: new Map(),
+      conversationData: {},
     }
   );
 
@@ -119,46 +142,74 @@ function ConversationProvider({ children }) {
       setSocketInstance(socket);
 
       socket.on('connect', () => {
-        console.log('Connected to socket server');
         setOnlineState(true);
       });
 
       socket.on('disconnect', () => {
-        console.log('Disconnected from socket server');
         setOnlineState(false);
+        socket.emit('send_status', {
+          status: 'offline',
+          conversationIds: Array.from(chatState.conversations?.keys()),
+        });
 
         setTimeout(() => {
           socket.connect();
         }, 5000);
       });
 
-      socket.on('new_conversation', (conversation) => {
-        console.log('new_conversation', conversation);
+      socket.on('new_conversation', ({ conversation, message }) => {
         dispatch({
           type: 'NEW_CONVERSATION',
           value: conversation,
         });
-      });
-
-      socket.on('new_conversation_message', (message) => {
-        console.log('new_conversation_message', message);
         dispatch({
           type: 'NEW_CONVERSATION_MESSAGE',
           value: message,
         });
       });
 
+      socket.on('status_update', ({ status, conversationId, userId }) => {
+        console.log('status update for user: ', userId, status);
+        setParticipantsStatus((prev) => {
+          if (!prev && conversationId) {
+            return { [userId]: status };
+          } else if (prev && conversationId) {
+            return {
+              ...prev,
+              [userId]: status,
+            };
+          } else if (prev && !conversationId) {
+            return prev[userId] ? { ...prev, [userId]: status } : prev;
+          }
+        });
+      });
+
+      socket.on('new_message', ({ message }) => {
+        dispatch({
+          type: 'NEW_MESSAGE',
+          value: message,
+        });
+      });
+
+      socket.on('mark_conversation_as_read', (conversationId) => {
+        dispatch({
+          type: 'MARK_CONVERSATION_AS_READ',
+          value: { conversationId },
+        });
+      });
+
       const checkConnectionStatus = () => {
         socket.emit('ping');
-        console.log('ping');
+        socket.emit('send_status', {
+          status: 'online',
+          conversationIds: Array.from(chatState.conversations?.keys()),
+        });
 
         const timeout = setTimeout(() => {
-          console.log('Connection issue detected. Disconnecting...');
           setOnlineState(false);
         }, 5000);
 
         socket.on('pong', () => {
-          console.log('Connection is active');
           setOnlineState(true);
           clearTimeout(timeout);
         });
@@ -176,6 +227,15 @@ function ConversationProvider({ children }) {
     }
   }, [auth?.accessToken]);
 
+  useEffect(() => {
+    if (socketInstance) {
+      socketInstance.emit('send_status', {
+        status: 'online',
+        conversationIds: Array.from(chatState.conversations?.keys()),
+      });
+    }
+  }, [chatState.conversations]);
+
   const conversationQuery = useQuery({
     queryKey: ['get_conversations'],
     enabled: !!auth?.accessToken,
@@ -187,11 +247,24 @@ function ConversationProvider({ children }) {
 
   useEffect(() => {
     if (conversationQuery.status === 'success') {
+      socketInstance.emit(
+        'join_conversations',
+        conversationQuery?.data.map((conversation) => conversation._id)
+      );
       dispatch({
         type: 'SET_CONVERSATIONS',
         value: conversationQuery.data,
       });
     }
+
+    return () => {
+      if (conversationQuery.status === 'success') {
+        socketInstance.emit(
+          'leave_conversations',
+          conversationQuery?.data.map((conversation) => conversation._id)
+        );
+      }
+    };
   }, [conversationQuery.data]);
 
   return (
@@ -201,6 +274,7 @@ function ConversationProvider({ children }) {
         dispatch,
         onlineState,
         socketInstance,
+        participantsStatus,
       }}
     >
       {children}
