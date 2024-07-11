@@ -2,25 +2,38 @@ const conversationService = require('../services/conversationService');
 const messageService = require('../services/messageService');
 const userService = require('../services/userService');
 
-const handleJoinConversation = (socket, conversationIds) => {
-  conversationIds.forEach((conversationId) => {
-    socket.join(conversationId);
-  });
+const handleJoinConversations = (socket, conversationIds) => {
+  if (conversationIds?.length > 0) {
+    conversationIds.forEach((conversationId) => {
+      socket.join(conversationId);
+    });
+  }
 };
 
-const handleMessageSend = async (socket, messageData) => {
-  const newMessage = await messageService.createMessage(messageData);
-  await conversationService.updateLastMessage(
-    messageData.conversationId,
-    messageData
-  );
+const handleLeaveConversations = (socket, conversationIds) => {
+  if (conversationIds?.length > 0) {
+    conversationIds.forEach((conversationId) => {
+      socket.leave(conversationId);
+    });
+  }
+};
 
-  // Emit message to all participants except the sender
-  socket.to(messageData.conversationId).emit('new_message', {
+const handleMessageSend = async (socket, io, messageData) => {
+  console.log(messageData);
+  const newMessage = await messageService.createMessage({
+    ...messageData,
+    sender: socket.userId,
+  });
+  await conversationService.updateLastMessage(messageData.conversationId, {
+    content: messageData.content,
+    sender: socket.userId,
+    createdAt: newMessage.createdAt,
+  });
+
+  io.to(messageData.conversationId).emit('new_message', {
     conversationId: messageData.conversationId,
     message: newMessage,
   });
-
 };
 
 const handleNewConversationMessage = async (socket, io, messageData) => {
@@ -59,21 +72,39 @@ const handleNewConversationMessage = async (socket, io, messageData) => {
       }
     );
 
-    io.in(conversationId).emit('new_conversation', newConversation);
-    io.in(conversationId).emit('new_conversation_message', newMessage);
+    io.in(conversationId).emit('new_conversation', {
+      conversation: newConversation,
+      message: newMessage,
+    });
   } catch (error) {
     console.error('Error sending new message:', error);
   }
 };
 
-const handleReadMessage = async (socket, data) => {
-  await messageService.markMessageAsRead(data.conversationId, data.userId);
-  socket.to(data.conversationId).emit('message_read', data);
+const handleStatusUpdate = (socket, status, conversationIds) => {
+  if (conversationIds?.length > 0) {
+    console.log('status update for user:', socket.userId, status);
+    conversationIds.forEach((conversationId) => {
+      socket.to(conversationId).emit('status_update', {
+        status,
+        conversationId,
+        userId: socket.userId,
+      });
+    });
+  }
+};
+
+const handleReadMessage = async (socket, conversationId) => {
+  await messageService.markMessageAsRead(conversationId, socket.userId);
+  socket.to(conversationId).emit('message_read', conversationId);
+  socket.emit('mark_conversation_as_read', conversationId);
 };
 
 module.exports = {
-  handleJoinConversation,
+  handleJoinConversations,
+  handleLeaveConversations,
   handleMessageSend,
   handleNewConversationMessage,
   handleReadMessage,
+  handleStatusUpdate,
 };

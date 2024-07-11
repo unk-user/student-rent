@@ -9,31 +9,41 @@ function socketHandler(io) {
 
     socket.on('ping', () => {
       socket.emit('pong');
-      console.log('ping-pong')
+      console.log('ping-pong');
     });
 
-    socket.on('join_conversation', (conversationIds) => {
-      socketControllers.handleJoinConversation(socket, conversationIds);
+    socket.on('join_conversations', (conversationIds) => {
+      console.log(conversationIds);
+      socketControllers.handleJoinConversations(socket, conversationIds);
+    });
+
+    socket.on('leave_conversations', (conversationIds) => {
+      socketControllers.handleLeaveConversations(socket, conversationIds);
     });
 
     socket.on('send_message', (messageData) => {
-      socketControllers.handleMessageSend(socket, messageData);
+      socketControllers.handleMessageSend(socket, io, messageData);
     });
 
     socket.on('send_message_new', (messageData) => {
       socketControllers.handleNewConversationMessage(socket, io, messageData);
     });
 
-    socket.on('typing', (data) => {
-      socket.to(data.conversationId).emit('typing', data);
+    socket.on('send_status', ({ status, conversationIds }) => {
+      console.log('status sent: ', status);
+      socketControllers.handleStatusUpdate(socket, status, conversationIds);
     });
 
-    socket.on('read_message', async (data) => {
-      await socketControllers.handleReadMessage(socket, data);
+    socket.on('read_message', async (conversationId) => {
+      await socketControllers.handleReadMessage(socket, conversationId);
     });
 
     socket.on('disconnect', () => {
       console.log('Socket disconnected:', socket.id);
+      socket.broadcast.emit('status_update', {
+        status: 'offline',
+        userId: socket.userId,
+      });
       userService.setUserOffline(socket.userId);
     });
   });
