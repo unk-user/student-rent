@@ -27,14 +27,21 @@ const getConversations = async (req, res) => {
                 $expr: {
                   $and: [
                     { $eq: ['$conversationId', '$$localField'] },
-                    { $ne: ['$sender', userId] },
-                    { $ne: ['$readBy', userId] },
+                    { $ne: ['$sender', new mongoose.Types.ObjectId(userId)] },
+                    {
+                      $not: {
+                        $in: [new mongoose.Types.ObjectId(userId), '$readBy'],
+                      },
+                    },
                   ],
                 },
               },
             },
+            {
+              $count: 'count',
+            },
           ],
-          as: 'unreadMessages',
+          as: 'newMessagesCount',
         },
       },
     ]);
@@ -83,10 +90,10 @@ const getMessages = async (req, res) => {
 
     const messages = await Message.find(query)
       .sort({ createdAt: -1 })
-      .limit(11)
+      .limit(21)
       .lean();
 
-    const hasMore = messages.length === 11;
+    const hasMore = messages.length === 21;
     const paginatedMessages = hasMore ? messages.slice(0, -1) : messages;
 
     return res.status(200).json({
@@ -95,7 +102,7 @@ const getMessages = async (req, res) => {
       nextCursor: hasMore
         ? paginatedMessages[paginatedMessages.length - 1]._id
         : null,
-    })
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });

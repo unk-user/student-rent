@@ -101,7 +101,6 @@ const logoutUser = async (req, res) => {
 
   user.refreshTokens = user.refreshTokens.filter((rt) => rt !== refreshToken);
   const result = await user.save();
-  console.log(result);
 
   res.clearCookie('refreshToken', {
     httpOnly: true,

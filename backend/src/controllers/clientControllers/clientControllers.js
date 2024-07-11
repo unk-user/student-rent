@@ -430,7 +430,7 @@ const likeRequest = async (req, res) => {
 
 const getRequests = async (req, res) => {
   try {
-    const requests = await Request.find();
+    const requests = await Request.find().populate('userId');
     res.status(200).json({ requests });
   } catch (error) {
     console.error('Error getting requests', error);

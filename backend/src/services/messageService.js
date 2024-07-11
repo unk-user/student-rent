@@ -6,7 +6,7 @@ const createMessage = async (messageData) => {
 
 const markMessageAsRead = async (conversationId, userId) => {
   return await Message.updateMany(
-    { conversationId, sender: { $ne: userId } },
+    { conversationId, sender: { $ne: userId }, readBy: { $ne: userId } },
     { $push: { readBy: userId } }
   );
 };
