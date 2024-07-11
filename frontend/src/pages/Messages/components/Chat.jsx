@@ -5,12 +5,11 @@ import ChatHeader from './ChatHeader';
 import { useContext, useEffect } from 'react';
 import { ConversationContext } from '@/context/ConversationProvider';
 import { AuthContext } from '@/context/AuthProvider';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/axiosInstance';
 
 function Chat() {
-  const { chatState, dispatch, socketInstance } =
-    useContext(ConversationContext);
+  const { chatState, socketInstance } = useContext(ConversationContext);
   const { conversationId } = useParams();
   const { auth } = useContext(AuthContext);
 
@@ -19,9 +18,9 @@ function Chat() {
     ?.participants.filter(
       (participant) => participant._id !== auth.user._id
     )[0];
-  const conversationData = chatState.conversationData.get(conversationId);
+  const conversationData = chatState.conversationData[conversationId];
 
-  const messagesQuery = useQuery({
+  const messagesQuery = useInfiniteQuery({
     queryKey: ['messages', conversationId],
     queryFn: async () => {
       const { data } = await axiosInstance.get(
@@ -34,40 +33,37 @@ function Chat() {
       return data;
     },
     enabled: !conversationData || conversationData.hasMore,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.hasMore) return undefined;
+      return lastPage.nextCursor;
+    },
+    initialPageParam: conversationData?.pageCursor || undefined,
   });
 
   useEffect(() => {
-    if (messagesQuery.status === 'success' && conversationData) {
-      dispatch({
-        type: 'UNSHIFT_CONVERSATION_DATA',
-        value: {
-          conversationId,
-          messages: messagesQuery.data.messages,
-          hasMore: messagesQuery.data.hasMore,
-          pageCursor: messagesQuery.data.nextCursor,
-        },
-      });
-    } else if (messagesQuery.status === 'success' && !conversationData) {
-      dispatch({
-        type: 'SET_CONVERSATION_DATA',
-        value: {
-          conversationId,
-          messages: messagesQuery.data.messages,
-          hasMore: messagesQuery.data.hasMore,
-          pageCursor: messagesQuery.data.nextCursor,
-        },
-      });
+    if (messagesQuery.status === 'success') {
+      socketInstance?.emit('read_message', conversationId);
     }
-  }, [messagesQuery.data]);
+  }, [messagesQuery.status]);
 
   const onSend = (message) => {
-    socketInstance.emit('send_message', message);
+    socketInstance.emit('send_message', {
+      conversationId,
+      content: message,
+      sender: auth.user._id,
+    });
   };
+
+  const messages = conversationData
+    ? conversationData.messages.concat(
+        messagesQuery.data?.pages.map((page) => page.messages).flat()
+      )
+    : messagesQuery.data?.pages.map((page) => page.messages).flat();
 
   return (
     <>
       <ChatHeader userData={userData} />
-      <ChatBody messages={conversationData?.messages} />
+      <ChatBody messages={messages} />
       <ChatFooter sendMessage={onSend} />
     </>
   );

@@ -3,7 +3,7 @@ import ConversationsNavbar from './components/ConversationsNavbar';
 
 function ChatLayout() {
   return (
-    <div className="h-full w-screen py-6">
+    <div className="h-full w-full py-6 max-h-[calc(100vh-4rem)]">
       <div className="max-w-[1432px] mx-auto bg-white h-full min-h-[600px] flex">
         <ConversationsNavbar />
         <div className="flex-1 flex flex-col relative">

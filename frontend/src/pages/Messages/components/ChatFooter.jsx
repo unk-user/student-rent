@@ -20,21 +20,37 @@ function ChatFooter({ sendMessage }) {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         label="Message"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            onSend();
+          } else if (e.key === 'Enter' && e.shiftKey) {
+            e.preventDefault();
+            setMessage(message + '\n');
+          }
+        }}
         className="!text-sm min-h-[60px] h-max !rounded-[6px]"
       />
       <Button
         size="sm"
         onClick={onSend}
-        className="flex items-center gap-1 text-sm !rounded-[6px] bg-dark-blue"
+        className="flex items-center gap-1 text-sm !rounded-[6px] bg-dark-blue !min-w-max"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            onSend();
+          }
+        }}
+        tabIndex={0}
       >
-        <SentIcon size={24} /> Send
+        <SentIcon size={20} /> Send
       </Button>
     </div>
   );
 }
 
 ChatFooter.propTypes = {
-  sendMessages: PropTypes.func,
+  sendMessage: PropTypes.func,
 };
 
 export default ChatFooter;
