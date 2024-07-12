@@ -19,7 +19,7 @@ const verifySocketToken = async (accessToken) => {
     }
     return { userId, role, user };
   } catch (error) {
-    throw new Error('Unauthorized: ' + error.message);
+    throw new Error('Unauthorized: Invalid token');
   }
 };
 

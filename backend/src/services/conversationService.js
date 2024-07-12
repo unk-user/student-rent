@@ -19,6 +19,10 @@ const createConversation = async (participants) => {
   return await Conversation.create({ participants });
 };
 
+const getConversations = async (userId) => {
+  return await Conversation.find({ participants: userId }).lean();
+};
+
 const getConversationParticipants = async (conversationId) => {
   const conversation = await Conversation.findById(conversationId);
   return conversation.participants;
@@ -28,4 +32,5 @@ module.exports = {
   updateLastMessage,
   getConversationParticipants,
   createConversation,
+  getConversations,
 };

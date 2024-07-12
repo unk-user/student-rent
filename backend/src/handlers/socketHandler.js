@@ -3,9 +3,7 @@ const userService = require('../services/userService');
 
 function socketHandler(io) {
   io.on('connection', (socket) => {
-    console.log('Socket connected:', socket.id);
     userService.setUserOnline(socket.userId, socket.id);
-    console.log(userService.getOnlineUsers());
 
     socket.on('ping', () => {
       socket.emit('pong');
@@ -13,7 +11,6 @@ function socketHandler(io) {
     });
 
     socket.on('join_conversations', (conversationIds) => {
-      console.log(conversationIds);
       socketControllers.handleJoinConversations(socket, conversationIds);
     });
 
@@ -29,9 +26,8 @@ function socketHandler(io) {
       socketControllers.handleNewConversationMessage(socket, io, messageData);
     });
 
-    socket.on('send_status', ({ status, conversationIds }) => {
-      console.log('status sent: ', status);
-      socketControllers.handleStatusUpdate(socket, status, conversationIds);
+    socket.on('send_status', ({ status, userId }) => {
+      socketControllers.handleStatusUpdate(socket, status, userId);
     });
 
     socket.on('read_message', async (conversationId) => {

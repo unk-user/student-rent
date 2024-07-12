@@ -1,9 +1,28 @@
 const conversationService = require('../services/conversationService');
 const messageService = require('../services/messageService');
 const userService = require('../services/userService');
+const Conversation = require('../models/Conversation.model');
 
-const handleJoinConversations = (socket, conversationIds) => {
+const handleJoinConversations = async (socket, conversationIds) => {
+  console.log('handleJoinConversations: ', conversationIds);
   if (conversationIds?.length > 0) {
+    const conversations = await Conversation.find(
+      {
+        _id: { $in: conversationIds },
+      },
+      'participants'
+    );
+
+    const participantStatuses = conversations.flatMap((conversation) => {
+      return conversation.participants.map((participant) => {
+        return {
+          userId: participant,
+          status: userService.getUserStatus(participant),
+        };
+      });
+    });
+
+    socket.emit('conversations_status', participantStatuses);
     conversationIds.forEach((conversationId) => {
       socket.join(conversationId);
     });
@@ -81,14 +100,14 @@ const handleNewConversationMessage = async (socket, io, messageData) => {
   }
 };
 
-const handleStatusUpdate = (socket, status, conversationIds) => {
-  if (conversationIds?.length > 0) {
-    console.log('status update for user:', socket.userId, status);
-    conversationIds.forEach((conversationId) => {
-      socket.to(conversationId).emit('status_update', {
+const handleStatusUpdate = async (socket, status, userId) => {
+  const conversations = await conversationService.getConversations(userId);
+  if (conversations.length > 0) {
+    conversations.forEach((conversation) => {
+      socket.to(conversation._id.toString()).emit('status_update', {
         status,
-        conversationId,
-        userId: socket.userId,
+        conversationId: conversation._id,
+        userId,
       });
     });
   }

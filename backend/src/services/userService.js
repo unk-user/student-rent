@@ -13,8 +13,8 @@ const getSocketId = (userId) => {
   return onlineUsers.get(userId);
 };
 
-const getOnlineUsers = () => {
-  return onlineUsers;
+const getUserStatus = (userId) => {
+  return onlineUsers.get(userId.toString()) ? 'online' : 'offline';
 };
 
 const getUserData = async (userId) => {
@@ -25,6 +25,6 @@ module.exports = {
   setUserOnline,
   setUserOffline,
   getSocketId,
-  getOnlineUsers,
+  getUserStatus,
   getUserData,
 };
