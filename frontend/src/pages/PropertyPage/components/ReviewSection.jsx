@@ -13,7 +13,7 @@ function ReviewSection({ listing, refetch, listingId }) {
   };
 
   return (
-    <div className="w-full mt-12">
+    <div className="w-full mt-44 mb-24">
       <h4 className="text-lg font-medium">Reviews and ratings</h4>
       <div className="flex items-center pb-2 border-b-2 border-gray-500">
         <div className="text-lg mr-1 text-white bg-blue-500 p-[1px]">
@@ -30,7 +30,7 @@ function ReviewSection({ listing, refetch, listingId }) {
         </p>
         <Button
           size="sm"
-          className="ml-auto text-sm rounded-[6px] bg-blue-300"
+          className="ml-auto text-sm bg-blue-300"
           onClick={handleReviewDialog}
         >
           {!listing.reviewed ? 'Leave a review' : 'Reviewed'}

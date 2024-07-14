@@ -1,17 +1,22 @@
-import { Outlet } from 'react-router-dom';
+import { useOutlet } from 'react-router-dom';
 import ConversationsNavbar from './components/ConversationsNavbar';
+import { useMediaQuery } from 'react-responsive';
 
 function ChatLayout() {
+  const outlet = useOutlet();
+  const isDesktop = useMediaQuery({ query: '(min-width: 992px)' });
+
   return (
-    <div className="h-full w-full py-6 max-h-[calc(100vh-4rem)]">
-      <div className="max-w-[1432px] mx-auto bg-white h-full min-h-[600px] flex">
-        <ConversationsNavbar />
-        <div className="flex-1 flex flex-col relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
-            <h2 className="text-2xl">Open a conversation</h2>
+    <div className="h-[calc(100vh-3.4rem)] w-full py-6 max-xl:py-0 max-h-[calc(100vh-3.4rem)]">
+      <div className="max-w-[1432px] h-full mx-auto bg-white flex">
+        {isDesktop || !outlet ? <ConversationsNavbar /> : ''}
+        {isDesktop || outlet ? (
+          <div className="flex-1 flex flex-col relative max-md:px-4 max-sm:px-2">
+            {outlet}
           </div>
-          <Outlet />
-        </div>
+        ) : (
+          ''
+        )}
       </div>
     </div>
   );

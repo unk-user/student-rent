@@ -72,7 +72,7 @@ function ReviewDialog({ open, handler, listingId, refetchListing, disabled }) {
         <DialogFooter>
           <Button
             type="submit"
-            className="w-full text-base rounded-[6px] bg-blue-300"
+            className="w-full text-base bg-blue-300"
             loading={mutation.isPending}
           >
             Submit

@@ -14,7 +14,7 @@ function ChatFooter({ sendMessage }) {
   };
 
   return (
-    <div className="w-full mt-auto flex items-start gap-2 px-4 py-3 border-t-2 border-gray-300">
+    <div className="w-full mt-auto flex items-start gap-2 px-4 py-3 max-xl:pr-0 max-md:px-0 border-t-2 border-gray-300">
       <Textarea
         variant="outlined"
         value={message}
@@ -29,12 +29,12 @@ function ChatFooter({ sendMessage }) {
             setMessage(message + '\n');
           }
         }}
-        className="!text-sm min-h-[60px] h-max !rounded-[6px]"
+        className="!text-sm min-h-[60px] h-max"
       />
       <Button
         size="sm"
         onClick={onSend}
-        className="flex items-center gap-1 text-sm !rounded-[6px] bg-dark-blue !min-w-max"
+        className="flex items-center gap-1 text-sm bg-dark-blue !min-w-max"
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();

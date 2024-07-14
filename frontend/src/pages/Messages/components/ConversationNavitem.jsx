@@ -20,11 +20,11 @@ function ConversationNavitem({ conversation }) {
       className={({ isActive }) =>
         [
           isActive ? 'border-l-2 border-blue-300' : '',
-          'flex item-center p-1 transition duration-500',
+          'flex item-center pr-1 transition duration-500 pl-2',
         ].join(' ')
       }
     >
-      <div className="h-11 w-11 rounded-full relative">
+      <div className="h-12 w-12 rounded-full relative">
         <div
           className={`w-2 h-2 rounded-full absolute bottom-[1px] outline outline-1 outline-white right-[1px] ${
             participantsStatus && participantsStatus[userData._id] === 'online'
@@ -50,7 +50,9 @@ function ConversationNavitem({ conversation }) {
                 : 'text-gray-600'
             }`}
           >
-            {moment(conversation.updatedAt).format('LT').replace(' ', '')}
+            {moment(conversation.lastMessage?.createdAt)
+              .format('LT')
+              .replace(' ', '')}
           </span>
         </div>
         <div className="flex items-center">

@@ -10,26 +10,29 @@ function ImagesPreview({ images }) {
     <div className="grid grid-cols-5 grid-rows-2 w-full gap-4 max-md:gap-2 max-sm:gap-1 h-1/2">
       <div className="col-span-3 row-span-2 bg-gray-600 aspect-[1.618]">
         <img
-          src={images[0].url.replace('/upload/', '/upload/q_auto/')}
+          src={images[0]?.url?.replace('/upload/', '/upload/q_auto/')}
           alt="property-image"
+          loading='lazy'
           className="w-full h-full object-cover"
         />
       </div>
       <div className="bg-gray-600 col-span-2 row-span-1 overflow-hidden">
         <img
-          src={images[1].url.replace(
+          src={images[1]?.url.replace(
             '/upload/',
             '/upload/q_auto,ar_2.3,c_crop/'
           )}
+          loading='lazy'
           className="object-cover h-full"
         />
       </div>
       <div className="bg-gray-600 col-span-2 row-span-1 overflow-hidden relative">
         <img
-          src={images[2]?.url.replace(
+          src={images[2]?.url?.replace(
             '/upload/',
             '/upload/q_auto,ar_2.3,c_crop/'
           )}
+          loading='lazy'
           className="object-cover h-full"
         />
         <div className="absolute right-3 bottom-4">
@@ -37,7 +40,7 @@ function ImagesPreview({ images }) {
             size="sm"
             ripple={false}
             onClick={handleOpen}
-            className="text-black bg-white focus:!opacity-100 active:scale-[0.99] flex items-center gap-1 rounded-[6px] shadow-md"
+            className="text-black bg-white focus:!opacity-100 active:scale-[0.99] flex items-center gap-1 shadow-md"
           >
             <Image01Icon size={24} />
             <span className="leading-7 !text-xs">View all photos</span>

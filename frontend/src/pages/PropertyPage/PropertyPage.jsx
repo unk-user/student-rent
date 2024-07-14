@@ -11,6 +11,7 @@ import ListingDetails from './components/ListingDetails';
 import ActionCard from './components/ActionCard';
 import ReviewSection from './components/ReviewSection';
 import RequestSection from './components/RequestSection';
+import Footer from '@/components/Footer';
 
 function PropertyPage() {
   const { listingId } = useParams();
@@ -41,7 +42,7 @@ function PropertyPage() {
         );
         return data;
       }
-    }
+    },
   });
 
   useEffect(() => {
@@ -73,7 +74,7 @@ function PropertyPage() {
   return (
     <div className="w-full h-full bg-white">
       {query.status === 'success' && (
-        <div className="max-w-[1304px] mx-auto w-full py-8 px-[50px] max-xl:px-10 max-xl:max-w-none max-md:px-8 max-sm:px-2">
+        <div className="max-w-[1304px] mx-auto w-full py-6 px-[50px] max-xl:px-8 max-xl:max-w-none max-md:px-4 max-sm:px-2">
           <div className="w-full flex flex-col gap-3">
             <ListingHeader
               liked={liked}
@@ -98,6 +99,7 @@ function PropertyPage() {
               requests={query.data?.listing.requests}
               listing={query.data?.listing}
               refetch={query.refetch}
+              handleRequestDialog={handleRequestDialog}
             />
             <ReviewSection
               listing={query.data?.listing}
@@ -113,6 +115,7 @@ function PropertyPage() {
           />
         </div>
       )}
+      <Footer />
     </div>
   );
 }

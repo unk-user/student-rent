@@ -19,7 +19,7 @@ function ListingHeader({ liked, handleLike, details }) {
         <Button
           variant="outlined"
           size="sm"
-          className="rounded-[6px] ml-auto flex items-center gap-1 text-blue-300 border-gray-500 font-medium"
+          className="ml-auto flex items-center gap-1 text-blue-300 border-gray-500 font-medium"
         >
           <Share08Icon size={20} />
           Share
@@ -29,7 +29,7 @@ function ListingHeader({ liked, handleLike, details }) {
           variant="outlined"
           size="sm"
           className={
-            'rounded-[6px] flex ml-2 items-center gap-1 text-blue-300 border-gray-500 font-medium' +
+            'flex ml-1 items-center gap-1 text-blue-300 border-gray-500 font-medium' +
             (liked ? ' bg-blue-200' : '')
           }
         >
