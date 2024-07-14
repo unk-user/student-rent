@@ -22,7 +22,7 @@ app.use(
   cors({
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-    origin: ['http://localhost:8000', 'http://localhost:5173'],
+    origin: ['http://localhost:8000', 'http://localhost:5173', 'http://localhost:4173'],
   })
 );
 
