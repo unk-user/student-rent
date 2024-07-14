@@ -28,6 +28,7 @@ const refreshAccessToken = async (req, res) => {
       async (err, decoded) => {
         if (err) return; //Forbiden
         const hackedUser = await User.findById(decoded.userId);
+        if(!hackedUser) return res.sendStatus(403);
         hackedUser.refreshTokens = [];
         await hackedUser.save();
         console.log(err);

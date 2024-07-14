@@ -1,17 +1,6 @@
 const express = require('express');
 const verifyToken = require('../middleware/verifyToken');
-const {
-  getListings,
-  getListing,
-  updatePreferences,
-  addLike,
-  addReview,
-  removeLike,
-  addRequest,
-  removeRequest,
-  likeRequest,
-  getRequests,
-} = require('../controllers/clientControllers/clientControllers');
+const clientControllers = require('../controllers/clientControllers/clientControllers');
 const {
   loginClient,
   registerClient,
@@ -30,16 +19,17 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get('/listings', getListings);
-router.get('/listings/:listingId', getListing);
-router.post('/listings/:listingId/like', addLike);
-router.delete('/listings/:listingId/like', removeLike);
-router.post('/listings/:listingId/review', addReview);
-router.post('/listings/:listingId/request', addRequest);
-router.delete('/listings/:listingId/request', removeRequest);
-router.post('/listings/:listingId/request/like', likeRequest);
-router.get('/requests', getRequests);
+router.get('/listings', clientControllers.getListings);
+router.get('/listings/:listingId', clientControllers.getListing);
+router.post('/listings/:listingId/like', clientControllers.addLike);
+router.delete('/listings/:listingId/like', clientControllers.removeLike);
+router.post('/listings/:listingId/review', clientControllers.addReview);
+router.get('/requests', clientControllers.getRequests);
+router.post('/requests/:listingId', clientControllers.addRequest);
+router.post('/requests/', clientControllers.addRequest);
+router.delete('/requests/:requestId', clientControllers.removeRequest);
 
-router.patch('/profile/preferences', updatePreferences);
+router.get('/profile', clientControllers.getClientData);
+router.patch('/profile/preferences', clientControllers.updatePreferences);
 
 module.exports = router;

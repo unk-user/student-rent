@@ -4,7 +4,6 @@ const userService = require('../services/userService');
 const Conversation = require('../models/Conversation.model');
 
 const handleJoinConversations = async (socket, conversationIds) => {
-  console.log('handleJoinConversations: ', conversationIds);
   if (conversationIds?.length > 0) {
     const conversations = await Conversation.find(
       {
@@ -15,10 +14,12 @@ const handleJoinConversations = async (socket, conversationIds) => {
 
     const participantStatuses = conversations.flatMap((conversation) => {
       return conversation.participants.map((participant) => {
-        return {
-          userId: participant,
-          status: userService.getUserStatus(participant),
-        };
+        return participant.toString() !== socket.userId
+          ? {
+              userId: participant,
+              status: userService.getUserStatus(participant.toString()),
+            }
+          : null;
       });
     });
 
@@ -38,7 +39,6 @@ const handleLeaveConversations = (socket, conversationIds) => {
 };
 
 const handleMessageSend = async (socket, io, messageData) => {
-  console.log(messageData);
   const newMessage = await messageService.createMessage({
     ...messageData,
     sender: socket.userId,
@@ -70,9 +70,18 @@ const handleNewConversationMessage = async (socket, io, messageData) => {
 
       const receiverSocketId = userService.getSocketId(messageData.receiverId);
       if (receiverSocketId) {
-        console.log('receiver online: ', receiverSocketId);
         const receiverSocket = io.sockets.sockets.get(receiverSocketId);
         receiverSocket.join(conversationId);
+        socket.emit('status_update', {
+          userId: messageData.receiverId,
+          status: 'online',
+          conversationId,
+        });
+        receiverSocket.emit('status_update', {
+          userId: socket.userId,
+          status: 'online',
+          conversationId,
+        });
       }
     }
 

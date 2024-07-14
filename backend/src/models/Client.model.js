@@ -14,7 +14,9 @@ const clientSchema = new Schema({
     city: String,
     school: String,
     budget: Number,
-  }
+  },
+  savedPosts: [{ type: ObjectId, ref: 'Request' }],
+  savedListings: [{ type: ObjectId, ref: 'RentalListing' }],
 });
 
 clientSchema.index({ userId: 1, 'preferences.budget': 1 });

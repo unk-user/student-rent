@@ -10,8 +10,7 @@ const getListings = async (req, res) => {
   const userId = req.userId;
   const {
     page = 1,
-    limit = 16,
-    sortBy = 'relevance',
+    limit = 12,
     minPrice,
     maxPrice,
     location,
@@ -20,140 +19,34 @@ const getListings = async (req, res) => {
   } = req.query;
   try {
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    const client = await Client.findOne({ userId });
 
-    const currentClient = await Client.findOne({ userId });
+    let query = {
+      ...(client.preferences.city && {
+        'details.city': client.preferences.city,
+      }),
+      ...(maxPrice &&
+        minPrice && {
+          'details.price': {
+            $lte: parseInt(maxPrice),
+            $gte: parseInt(minPrice),
+          },
+        }),
+      ...(location && location !== 'Any' && { 'details.location': location }),
+      ...(rentPeriod &&
+        rentPeriod !== 'any' && { 'details.period': rentPeriod }),
+      ...(category && category !== 'all' && { 'details.category': category }),
+      status: 'active',
+    };
 
-    const similarClients = await Client.find({
-      'preferences.budget': {
-        $gte: currentClient.preferences.budget * 0.8,
-        $lte: currentClient.preferences.budget * 1.2,
-      },
-      userId: { $ne: userId },
-    }).limit(10);
+    console.log(query);
 
-    const similarClientIds = similarClients.map((client) => client.userId);
+    const listings = await RentalListing.find(query)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
 
-    let query = [];
-
-    if (minPrice || maxPrice || location || rentPeriod) {
-      const match = {};
-
-      if (minPrice) match['details.price'] = { $gte: parseInt(minPrice) };
-      if (maxPrice)
-        match['details.price'] = {
-          ...match['details.price'],
-          $lte: parseInt(maxPrice),
-        };
-      if (location) match['details.location'] = location;
-      if (rentPeriod) match['details.period'] = rentPeriod;
-      if (category) match['details.category'] = category;
-
-      console.log(match);
-
-      query.push({
-        $match: match,
-      });
-    }
-
-    query.push({
-      $lookup: {
-        from: 'rentallistinglikes',
-        localField: '_id',
-        foreignField: 'rentalListingId',
-        as: 'likes',
-      },
-    });
-
-    query.push({
-      $lookup: {
-        from: 'rentallistingviews',
-        localField: '_id',
-        foreignField: 'rentalListingId',
-        as: 'views',
-      },
-    });
-
-    query.push({
-      $lookup: {
-        from: 'reviews',
-        localField: '_id',
-        foreignField: 'rentalListingId',
-        as: 'reviews',
-      },
-    });
-
-    query.push({
-      $addFields: {
-        interactionScore: {
-          $add: [
-            {
-              $size: {
-                $setIntersection: ['$views.userId', similarClientIds],
-              },
-            },
-            {
-              $multiply: [
-                {
-                  $size: {
-                    $setIntersection: ['$likes.userId', similarClientIds],
-                  },
-                },
-                2,
-              ],
-            },
-            {
-              $multiply: [
-                {
-                  $size: {
-                    $setIntersection: ['$reviews.userId', similarClientIds],
-                  },
-                },
-                5,
-              ],
-            },
-            {
-              $cond: [
-                { $eq: ['$details.city', currentClient.preferences.city] },
-                1000,
-                0,
-              ],
-            },
-          ],
-        },
-      },
-    });
-
-    if (sortBy === 'relevance') {
-      query.push({
-        $sort: {
-          'interactionSummary.reviewAvg': -1,
-          interactionScore: -1,
-        },
-      });
-    } else if (['newest', 'oldest'].includes(sortBy)) {
-      query.push({
-        $sort: {
-          createdAt: sortBy === 'newest' ? -1 : 1,
-        },
-      });
-    } else if (['cheapest', 'expensive'].includes(sortBy)) {
-      query.push({
-        $sort: {
-          'details.price': sortBy === 'cheapest' ? 1 : -1,
-        },
-      });
-    }
-
-    query.push({
-      $skip: skip,
-    });
-    query.push({
-      $limit: parseInt(limit),
-    });
-
-    const listings = await RentalListing.aggregate(query);
-
-    const total = await RentalListing.countDocuments({ ...query[0].$match });
+    const total = await RentalListing.countDocuments(query);
 
     res.json({
       listings,
@@ -266,6 +159,7 @@ const getListing = async (req, res) => {
     });
 
     if (listing.length === 0) {
+      console.log(listing);
       return res.status(404).json({ message: 'Listing not found' });
     }
 
@@ -361,22 +255,29 @@ const addRequest = async (req, res) => {
   const userId = req.userId;
   const { details } = req.body;
   try {
-    const existingRequest = await Request.findOne({
-      userId,
-      listingId,
-    });
-    if (existingRequest) {
-      return res
-        .status(400)
-        .json({ message: 'You have already sent a request to this listing' });
+    if (listingId) {
+      const existingRequest = await Request.findOne({
+        userId,
+        listingId,
+      });
+      if (existingRequest) {
+        return res
+          .status(400)
+          .json({ message: 'You have already sent a request to this listing' });
+      }
+      const request = await Request.create({
+        userId,
+        listingId,
+        details,
+      });
+      return res.status(201).json({ request });
+    } else {
+      const request = await Request.create({
+        userId,
+        details,
+      });
+      return res.status(201).json({ request });
     }
-    const request = new Request({
-      userId,
-      listingId,
-      details,
-    });
-    await request.save();
-    res.json({ message: 'Request sent successfully' });
   } catch (error) {
     console.error('Error sending request', error);
     res
@@ -386,10 +287,9 @@ const addRequest = async (req, res) => {
 };
 
 const removeRequest = async (req, res) => {
-  const { listingId } = req.params;
-  const userId = req.userId;
+  const { requestId } = req.params;
   try {
-    await Request.deleteOne({ userId, listingId });
+    await Request.deleteOne({ _id: requestId });
     res.json({ message: 'Request removed successfully' });
   } catch (error) {
     console.error('Error removing request', error);
@@ -399,39 +299,50 @@ const removeRequest = async (req, res) => {
   }
 };
 
-const likeRequest = async (req, res) => {
-  const { listingId } = req.params;
+const getRequests = async (req, res) => {
+  const { query, page = 1, limit = 10 } = req.query;
   const userId = req.userId;
   try {
-    const request = await Request.findOne({ listingId });
-    if (!request) {
-      return res.status(404).json({ message: 'Request not found' });
+    console.log('query', query);
+    let queryObj;
+    const client = await Client.findOne({ userId });
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
     }
-    if (request.likes.includes(userId)) {
-      await request.updateOne({
-        $pull: { likes: userId },
-        $inc: { likesCount: -1 },
-      });
-      return res.status(204).json({ message: 'Request unliked successfully' });
-    } else {
-      await request.updateOne({
-        $push: { likes: userId },
-        $inc: { likesCount: 1 },
-      });
-      return res.status(200).json({ message: 'Request liked successfully' });
-    }
-  } catch (error) {
-    console.error('Error liking request', error);
-    res
-      .status(500)
-      .json({ message: 'Error liking request', error: error.message });
-  }
-};
 
-const getRequests = async (req, res) => {
-  try {
-    const requests = await Request.find().populate('userId');
-    res.status(200).json({ requests });
+    switch (query) {
+      case 'my-posts':
+        queryObj = { userId };
+        break;
+      case 'most-recent':
+        queryObj = { city: client.preferences.city };
+        break;
+      case 'best-matches':
+        queryObj = {
+          city: client.preferences.city,
+          budget: {
+            $gte: client.preferences.budget - 400,
+            $lte: client.preferences.budget + 400,
+          },
+        };
+        break;
+      case 'saved-posts':
+        queryObj = { _id: { $in: client.savedPosts } };
+        break;
+      default:
+        queryObj = {};
+    }
+
+    const requests = await Request.find(queryObj)
+      .populate('userId', { hash: 0, refreshTokens: 0 })
+      .sort({ createdAt: -1 })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit));
+
+    const totalPages = Math.ceil(
+      (await Request.countDocuments(queryObj)) / parseInt(limit)
+    );
+    return res.json({ requests, totalPages });
   } catch (error) {
     console.error('Error getting requests', error);
     res
@@ -442,7 +353,7 @@ const getRequests = async (req, res) => {
 
 const updatePreferences = async (req, res) => {
   const userId = req.userId;
-  const { budget, city, school } = req.body;
+  const { preferences } = req.body;
   try {
     const client = await Client.findOne({ userId });
     if (!client) {
@@ -450,9 +361,9 @@ const updatePreferences = async (req, res) => {
     }
 
     client.preferences = {
-      budget: budget || client.preferences.budget,
-      city: city || client.preferences.city,
-      school: school || client.preferences.school,
+      budget: preferences.budget || client.preferences.budget,
+      city: preferences.city || client.preferences.city,
+      school: preferences.school || client.preferences.school,
     };
 
     await client.save();
@@ -465,6 +376,22 @@ const updatePreferences = async (req, res) => {
   }
 };
 
+const getClientData = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const client = await Client.findOne({ userId });
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+    res.status(200).json({ client });
+  } catch (error) {
+    console.error('Error getting client data', error);
+    res
+      .status(500)
+      .json({ message: 'Error getting client data', error: error.message });
+  }
+};
+
 module.exports = {
   getListings,
   getListing,
@@ -474,6 +401,6 @@ module.exports = {
   addReview,
   addRequest,
   removeRequest,
-  likeRequest,
   getRequests,
+  getClientData,
 };

@@ -20,7 +20,7 @@ const detailsSchema = new Schema({
   area: Number,
   category: {
     type: String,
-    enum: ['appartment', 'studio', 'room', 'house', 'dorm'],
+    enum: ['apartment', 'studio', 'room', 'house', 'dorm'],
     required: true,
   },
   images: [{ public_id: String, url: String }],
