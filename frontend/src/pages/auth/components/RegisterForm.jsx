@@ -191,7 +191,7 @@ function RegisterPage() {
         >
           {userData.password && (
             <Button
-              className="rounded p-1"
+              className="p-1"
               variant="text"
               onClick={togglePassword}
               disabled={!userData.password}

@@ -15,24 +15,24 @@ import axiosInstance from '@/utils/axiosInstance';
 function RequestDialog({ open, handler, listingId, refetch, disabled }) {
   const [details, setDetails] = useState({
     roommates: 1,
-    totalRommates: 2,
+    totalRoommates: 2,
     message: '',
+    preferences: [],
   });
   const [preference, setpreference] = useState('');
-  const [preferences, setPreferences] = useState([]);
   const [error, setError] = useState(null);
 
   const mutation = useMutation({
     mutationKey: ['request'],
     mutationFn: async () => {
       const { data } = await axiosInstance.post(
-        `/client/listings/${listingId}/request`,
+        `/client/requests/${listingId ? listingId : ''}`,
         {
           details: {
-            numberOfRoommatesNeeded: details.totalRommates,
+            numberOfRoommatesTotal: details.totalRoommates,
             numberOfRoommatesApplied: details.roommates,
             message: details.message,
-            preferences,
+            preferences: details.preferences,
           },
         }
       );
@@ -42,8 +42,9 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
       handler();
       setDetails({
         roommates: 1,
-        totalRommates: 1,
+        totalRoommates: 1,
         message: '',
+        preferences: [],
       });
       refetch();
     },
@@ -52,10 +53,12 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
   const addPreference = () => {
     if (
       preference &&
-      !preferences.includes(preference) &&
-      preferences.length < 4
+      !details.preferences.includes(preference) &&
+      details.preferences.length < 4
     ) {
-      setPreferences([...preferences, preference]);
+      setDetails((prev) => {
+        return { ...prev, preferences: [...prev.preferences, preference] };
+      });
       setpreference('');
     }
   };
@@ -63,9 +66,10 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (disabled) return;
-    if (details.roommates >= details.totalRommates)
-      return setError('Total roommates cannot be less than roommates applied');
-    setError(null);
+    if (details.roommates >= details.totalRoommates)
+      return setError(
+        'Total roommates number cannot be less than roommates applied'
+      );
     mutation.mutate();
   };
 
@@ -73,7 +77,7 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
     <Dialog handler={handler} open={open} className="!font-normal">
       <form onSubmit={handleSubmit}>
         <DialogHeader className="text-xl font-medium pb-0">
-          Post a request
+          Create post
         </DialogHeader>
         <div className="px-4">
           <p className="text-base text-gray-600 font-normal mb-3">
@@ -87,9 +91,9 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
               required={true}
               max={10}
               min={2}
-              value={details.totalRommates}
+              value={details.totalRoommates}
               onChange={(e) =>
-                setDetails({ ...details, totalRommates: e.target.value })
+                setDetails({ ...details, totalRoommates: e.target.value })
               }
             />
             <FormInput
@@ -110,6 +114,7 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
             label="Message"
             maxLength={500}
             value={details.message}
+            minLength={50}
             onChange={(e) =>
               setDetails({ ...details, message: e.target.value })
             }
@@ -125,7 +130,7 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
               type="button"
               color="blue"
               variant="outlined"
-              className="py-1"
+              className="py-1 rounded-[2px]"
               onClick={addPreference}
               maxLength={15}
             >
@@ -133,17 +138,22 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
             </Button>
           </FormInput>
           <div className="flex items-center py-2 gap-1">
-            {preferences.length > 0
-              ? preferences.map((preference) => (
+            {details.preferences.length > 0
+              ? details.preferences.map((preference) => (
                   <Chip
                     key={preference}
                     value={preference}
                     size="sm"
                     className="text-sm font-normal bg-gray-500 text-gray-600"
                     onClose={() =>
-                      setPreferences(
-                        preferences.filter((p) => p !== preference)
-                      )
+                      setDetails((prev) => {
+                        return {
+                          ...prev,
+                          preferences: prev.preferences.filter(
+                            (p) => p !== preference
+                          ),
+                        };
+                      })
                     }
                   />
                 ))
@@ -154,7 +164,7 @@ function RequestDialog({ open, handler, listingId, refetch, disabled }) {
           <Button
             type="submit"
             loading={mutation.isPending}
-            className="w-full text-base rounded-[6px] bg-blue-300"
+            className="w-full text-base bg-dark-blue"
           >
             Submit
           </Button>

@@ -36,6 +36,8 @@ function ConversationProvider({ children }) {
               ...state.conversationData,
               [action.value.conversationId]: {
                 messages: [action.value],
+                hasMore: false,
+                pageCursor: null,
               },
             },
             conversations: new Map([
@@ -77,16 +79,15 @@ function ConversationProvider({ children }) {
                     createdAt: action.value.createdAt,
                   },
                   newMessagesCount:
-                    state.conversations.get(action.value.conversationId)
-                      ?.newMessagesCount[0] &&
                     action.value.sender !== auth.user._id
                       ? [
                           {
-                            count: state.conversations.get(
-                              action.value.conversationId
-                            ).newMessagesCount[0].count++,
+                            count:
+                              state.conversations.get(
+                                action.value.conversationId
+                              ).newMessagesCount[0].count++ || 1,
                           },
-                        ] || [{ count: 0 }]
+                        ]
                       : [{ count: 0 }],
                 },
               ],
@@ -143,13 +144,18 @@ function ConversationProvider({ children }) {
 
       socket.on('connect', () => {
         setOnlineState(true);
+        console.log('userid:', auth.user._id);
+        socket.emit('send_status', {
+          status: 'online',
+          userId: auth.user._id,
+        });
       });
 
       socket.on('disconnect', () => {
         setOnlineState(false);
         socket.emit('send_status', {
           status: 'offline',
-          conversationIds: Array.from(chatState.conversations?.keys()),
+          userId: auth.user._id,
         });
 
         setTimeout(() => {
@@ -169,7 +175,6 @@ function ConversationProvider({ children }) {
       });
 
       socket.on('status_update', ({ status, conversationId, userId }) => {
-        console.log('status update for user: ', userId, status);
         setParticipantsStatus((prev) => {
           if (!prev && conversationId) {
             return { [userId]: status };
@@ -181,6 +186,20 @@ function ConversationProvider({ children }) {
           } else if (prev && !conversationId) {
             return prev[userId] ? { ...prev, [userId]: status } : prev;
           }
+        });
+      });
+
+      socket.on('conversations_status', (participantStatuses) => {
+        console.log(participantStatuses);
+        setParticipantsStatus((prev) => {
+          const newStatus = prev || {};
+
+          participantStatuses.forEach((conversation) => {
+            if (conversation)
+              newStatus[conversation.userId] = conversation.status;
+          });
+
+          return newStatus;
         });
       });
 
@@ -200,10 +219,6 @@ function ConversationProvider({ children }) {
 
       const checkConnectionStatus = () => {
         socket.emit('ping');
-        socket.emit('send_status', {
-          status: 'online',
-          conversationIds: Array.from(chatState.conversations?.keys()),
-        });
 
         const timeout = setTimeout(() => {
           setOnlineState(false);
@@ -225,16 +240,7 @@ function ConversationProvider({ children }) {
         }
       };
     }
-  }, [auth?.accessToken]);
-
-  useEffect(() => {
-    if (socketInstance) {
-      socketInstance.emit('send_status', {
-        status: 'online',
-        conversationIds: Array.from(chatState.conversations?.keys()),
-      });
-    }
-  }, [chatState.conversations]);
+  }, [auth]);
 
   const conversationQuery = useQuery({
     queryKey: ['get_conversations'],

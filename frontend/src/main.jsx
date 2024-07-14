@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 const theme = {
   button: {
     defaultProps: {
-      className: 'font-normal !justify-center !normal-case',
+      className: 'font-normal !justify-center !normal-case rounded-[3px]',
     },
   },
   checkbox: {
@@ -29,6 +29,21 @@ const theme = {
           before: 'checked:before:bg-blue-300',
         },
       },
+    },
+  },
+  input: {
+    defaultProps: {
+      className: '!rounded-[3px]',
+    },
+  },
+  select: {
+    defaultProps: {
+      className: 'rounded-[3px]',
+    },
+  },
+  option: {
+    defaultProps: {
+      className: 'rounded-[3px]',
     },
   },
 };

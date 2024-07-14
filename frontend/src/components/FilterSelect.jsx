@@ -11,7 +11,8 @@ function FilterSelect({ children, label, value, onChange, required }) {
       onChange={onChange}
       required={required}
       arrow={<ArrowDown01Icon size={20} />}
-      className="!text-sm !font-medium !text-black"
+      color="blue"
+      className="!text-sm !font-medium !text-black rounded-none"
       containerProps={{ className: `!h-8 mt-2 !min-w-[120px]` }}
       labelProps={{
         className: '!text-xs !text-gray-500 peer-aria-expanded:!text-black',

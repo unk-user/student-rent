@@ -11,7 +11,8 @@ function FilterInput({ label, value, onChange, placeholder, required }) {
       onChange={onChange}
       placeholder={placeholder}
       required={required}
-      className="!text-sm !text-black !font-medium"
+      color='blue'
+      className="!text-sm !text-black !font-medium !rounded-none"
       containerProps={{ className: '!min-w-[120px] !h-8 mt-2' }}
       labelProps={{
         className: '!text-xs !text-gray-500 peer-focus:!text-black',

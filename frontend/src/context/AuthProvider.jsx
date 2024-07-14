@@ -34,6 +34,10 @@ function AuthProvider({ children }) {
     };
 
     initialRefresh();
+    const interval = setInterval(initialRefresh, 15 * 60 * 1000);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   useLayoutEffect(() => {
@@ -83,7 +87,7 @@ function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
+    <AuthContext.Provider value={{ auth, setAuth, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );

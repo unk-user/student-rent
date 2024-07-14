@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 function ListingCard({ listing }) {
   return (
-    <div className=" bg-white hover:scale-[1.02] transition-transform duration-300">
+    <div className="bg-white hover:scale-[1.01] hover:shadow-lg transition-all duration-300 shadow-md shadow-gray-300">
       <div>
         <Carousel
           className="bg-gray-300 !max-w-full aspect-[5/4]"
@@ -47,7 +47,7 @@ function ListingCard({ listing }) {
             </p>
           </div>
           <div className="py-2 mb-2 border-b-2 border-gray-400">
-            <p className="font-medium leading-tight">{listing.details.title}</p>
+            <p className="font-medium leading-tight truncate">{listing.details.title}</p>
             <p className="text-sm text-gray-600">{listing.details.location}</p>
           </div>
           <div className="flex items-center gap-3">

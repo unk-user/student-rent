@@ -27,7 +27,7 @@ function ProfileImgInput({ file, setFile, containerClassName, label }) {
         <Button
           variant="outlined"
           color="blue"
-          className="ml-3 rounded-[6px]"
+          className="ml-3"
           size="sm"
           onClick={() => document.querySelector('#profileImg-input').click()}
         >

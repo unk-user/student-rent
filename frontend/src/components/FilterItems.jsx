@@ -4,7 +4,7 @@ import { Input, Option } from '@material-tailwind/react';
 import { v4 as uuid } from 'uuid';
 import propTypes from 'prop-types';
 
-const categories = ['appartment', 'studio', 'room', 'house', 'dorm', 'all'];
+const categories = ['apartment', 'studio', 'room', 'house', 'dorm', 'all'];
 const rentPeriods = [
   'academic year',
   'semester',
@@ -58,6 +58,7 @@ function FilterItems({
                 value={priceRange.from}
                 onChange={(e) => changePrice(e, 'from')}
                 containerProps={{ className: '!w-[60px] !min-w-0 !h-8' }}
+                className="!rounded-none"
                 type="text"
                 inputMode="numeric"
                 min={0}
@@ -72,6 +73,7 @@ function FilterItems({
                 onChange={(e) => changePrice(e, 'to')}
                 containerProps={{ className: '!w-[60px] !min-w-0 !h-8' }}
                 type="text"
+                className="!rounded-none"
                 inputMode="numeric"
                 min={0}
                 max={12000}
