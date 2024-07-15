@@ -7,23 +7,29 @@ import axios from 'axios';
 import AuthLayout from './pages/auth/AuthLayout';
 import LoginForm from './pages/auth/components/LoginForm';
 import RegisterForm from './pages/auth/components/RegisterForm';
-import { useContext } from 'react';
+import { Suspense, lazy, useContext } from 'react';
 import { AuthContext } from './context/AuthProvider';
 import Layout from './pages/Tenant/Layout';
 import FindRentPage from './pages/FindRent/FindRentPage';
 import PropertyPage from './pages/PropertyPage/PropertyPage';
-import ProfilePage from './pages/Profile/ProfilePage';
 import FindRoommatesPage from './pages/FindRoommates/FindRoommatesPage';
-import ChatLayout from './pages/Messages/ChatLayout';
 import ConversationProvider from './context/ConversationProvider';
-import Chat from './pages/Messages/components/Chat';
-import NewChat from './pages/Messages/components/NewChat';
+import { Spinner } from '@material-tailwind/react';
+import ChatLayout from './pages/Messages/ChatLayout';
+import LandingPage from './pages/LandingPage/LandingPage';
 
 function App() {
   axios.defaults.withCredentials = true;
   const { auth } = useContext(AuthContext);
 
+  const Chat = lazy(() => import('./pages/Messages/components/Chat'));
+  const NewChat = lazy(() => import('./pages/Messages/components/NewChat'));
+
   const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <LandingPage />,
+    },
     {
       path: '/auth',
       element: <AuthLayout />,
@@ -59,10 +65,24 @@ function App() {
         {
           path: 'roommates',
           element: <FindRoommatesPage />,
-        },
-        {
-          path: 'profile',
-          element: <ProfilePage />,
+          children: [
+            {
+              path: 'best-matches',
+              element: <div>Best Matches</div>,
+            },
+            {
+              path: 'most-recent',
+              element: <div>Most Recent</div>,
+            },
+            {
+              path: 'saved-posts',
+              element: <div>Saved Posts</div>,
+            },
+            {
+              path: 'my-posts',
+              element: <div>My Posts</div>,
+            },
+          ],
         },
         {
           path: 'messages',
@@ -84,7 +104,13 @@ function App() {
 
   return (
     <ConversationProvider>
-      <RouterProvider router={router} />
+      <Suspense
+        fallback={
+          <Spinner className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        }
+      >
+        <RouterProvider router={router} />
+      </Suspense>
     </ConversationProvider>
   );
 }

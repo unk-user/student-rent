@@ -48,7 +48,7 @@ function ListingCard({ listing }) {
           </div>
           <div className="py-2 mb-2 border-b-2 border-gray-400">
             <p className="font-medium leading-tight truncate">{listing.details.title}</p>
-            <p className="text-sm text-gray-600">{listing.details.location}</p>
+            <p className="text-sm text-gray-600 truncate">{listing.details.location}</p>
           </div>
           <div className="flex items-center gap-3">
             {listing.details.rooms && (

@@ -6,11 +6,25 @@ const Review = require('../../models/Review.model');
 const mongoose = require('mongoose');
 const Request = require('../../models/Request.model');
 
+const getRandomListings = async (req, res) => {
+  try {
+    const listing = await RentalListing.find({
+      status: 'active',
+      'interactionSummary.reviewAvg': { $gte: 3 },
+    }).limit(5);
+
+    return res.status(200).json({ listings: listing });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 const getListings = async (req, res) => {
   const userId = req.userId;
   const {
     page = 1,
-    limit = 12,
+    limit = 24,
     minPrice,
     maxPrice,
     location,
@@ -403,4 +417,5 @@ module.exports = {
   removeRequest,
   getRequests,
   getClientData,
+  getRandomListings,
 };

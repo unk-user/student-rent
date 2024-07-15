@@ -2,7 +2,7 @@ import FilterBar from '@/components/FilterBar';
 import axiosInstance from '@/utils/axiosInstance';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import ListingCard from './components/ListingCard';
+import ListingCard from '../../components/ListingCard';
 import Pagination from '../../components/Pagination';
 import { uniqueId } from 'lodash';
 import { useSearchParams } from 'react-router-dom';

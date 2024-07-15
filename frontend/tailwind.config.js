@@ -17,11 +17,13 @@ export default withMT({
       black: '#000000',
       white: '#ffffff',
       blue: {
+        50: '#E0EBED',
         100: '#B0CBFF',
         200: '#9FC0FF',
         300: '#006FF2',
       },
       gray: {
+        50: '#f2f2f2',
         100: '#f8f9fa',
         200: '#e9ecef',
         300: '#dee2e6',
@@ -41,6 +43,15 @@ export default withMT({
         'max-md': { max: '992px' },
         'max-sm': { max: '668px' },
         'max-xs': { max: '576px' },
+      },
+      animation: {
+        'infinite-scroll': 'infinite-scroll 25s linear infinite',
+      },
+      keyframes: {
+        'infinite-scroll': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' },
+        },
       },
     },
   },

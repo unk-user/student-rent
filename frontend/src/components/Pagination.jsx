@@ -11,7 +11,7 @@ function Pagination({ page, setPage, totalPages }) {
     <div className="flex w-full h-8 justify-end gap-1">
       <IconButton
         disabled={page === 1}
-        onClick={() => setPage(page - 1)}
+        onClick={() => (page ? setPage(page - 1) : setPage(1))}
         size="sm"
         className="rounded-none bg-white text-black h-6 w-6"
       >
@@ -34,7 +34,7 @@ function Pagination({ page, setPage, totalPages }) {
       )}
       <IconButton
         disabled={page === totalPages}
-        onClick={() => setPage(page + 1)}
+        onClick={() => (page ? setPage(page + 1) : setPage(2))}
         size="sm"
         className="rounded-none bg-white text-black h-6 w-6"
       >

@@ -5,7 +5,7 @@ import profileSvg from '@/assets/blank-profile-picture-973460.svg';
 
 function Review({ review }) {
   return (
-    <div className="py-3 px-2 bg-blue-50 flex flex-col h-[280px]">
+    <div className="py-3 px-2 bg-gray-50 flex flex-col h-[280px]">
       <div className="flex items-center justify-between">
         <Rating
           readonly

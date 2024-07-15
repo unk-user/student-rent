@@ -40,7 +40,7 @@ function FilterBar({ filters, setFilters }) {
   return (
     <div>
       {isDesktop ? (
-        <div className="bg-white w-full p-6 py-5 max-md:gap-4 rounded-[6px] flex items-center shadow-md shadow-gray-300">
+        <div className="bg-white w-full p-6 py-5 max-md:gap-4 flex items-center">
           <FilterItems
             location={location}
             setLocation={setLocation}

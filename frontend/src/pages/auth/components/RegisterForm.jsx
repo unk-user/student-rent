@@ -124,17 +124,8 @@ function RegisterPage() {
   return (
     <form
       onSubmit={onSubmit}
-      className="relative w-full p-4 md:p-0 sm:max-w-[600px] sm:mx-auto my-8 max-sm:my-0"
+      className="relative w-full p-4 md:p-0 sm:max-w-[600px] sm:mx-auto my-8 max-sm:my-0 mb-24"
     >
-      {mutation.isError && (
-        <Alert
-          className="absolute -top-2 left-0 right-0 -translate-y-full text-sm"
-          color="red"
-          variant="ghost"
-        >
-          {mutation.error.response.data.message}
-        </Alert>
-      )}
       <h2 className="text-2xl">Register</h2>
       <div className="mt-6 mb-8">
         <ProfileImgInput
@@ -274,6 +265,15 @@ function RegisterPage() {
           Sign in
         </Link>
       </p>
+      {mutation.isError && (
+        <Alert
+          className="absolute -bottom-2 left-0 right-0 translate-y-full text-sm"
+          color="red"
+          variant="ghost"
+        >
+          {mutation.error.response.data.message}
+        </Alert>
+      )}
     </form>
   );
 }

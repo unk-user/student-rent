@@ -23,7 +23,7 @@ function ActionCard({ listing }) {
   };
 
   return (
-    <div className="col-span-2 max-sm:col-span-1 shadow-md shadow-gray-300 rounded-sm p-2">
+    <div className="col-span-2 max-sm:col-span-1 rounded-sm p-2">
       <div className="flex items-center">
         <p>Rent Price</p>
         <p className="ml-auto text-lg max-md:text-base font-medium text-blue-300">

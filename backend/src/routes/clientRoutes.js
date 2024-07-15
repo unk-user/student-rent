@@ -10,6 +10,7 @@ const router = express.Router();
 
 router.use('/register', upload.single('image'), registerClient);
 router.use('/login', loginClient);
+router.get('/listings/random', clientControllers.getRandomListings);
 
 router.use(verifyToken);
 router.use((req, res, next) => {
